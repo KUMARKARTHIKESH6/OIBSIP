@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexVPN – The VPN That Just Works</title>
+
+  <!-- ============================================================
+       INTERNAL STYLES
+  ============================================================ -->
+  <style>
+    /* ── Google Fonts (self-contained @import) ── */
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+    /* ── CSS Variables ── */
+    :root {
+      --red:        #E8232A;
+      --red-light:  #FF4D53;
+      --red-dark:   #C0181E;
+      --dark:       #0A0C10;
+      --dark2:      #0F1219;
+      --dark3:      #161B26;
+      --card:       #1A2035;
+      --border:     rgba(255,255,255,0.07);
+      --text:       #F0F2F8;
+      --muted:      #8A94A8;
+      --white:      #FFFFFF;
+      --gradient:   linear-gradient(135deg, #E8232A 0%, #FF6B35 100%);
+      --glow:       0 0 60px rgba(232,35,42,0.25);
+      --radius:     16px;
+      --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--dark2); }
+    ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 3px; }
+
+    /* ── Utility ── */
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .section-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--red-light);
+      background: rgba(232,35,42,0.1);
+      border: 1px solid rgba(232,35,42,0.25);
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      color: var(--white);
+    }
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 520px;
+    }
+    .highlight { color: var(--red-light); }
+
+    /* ── Scroll-reveal animation ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+    .delay-5 { transition-delay: 0.5s; }
+
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    #navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 20px 0;
+      transition: background var(--transition), box-shadow var(--transition), padding var(--transition);
+    }
+    #navbar.scrolled {
+      background: rgba(10,12,16,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 var(--border);
+      padding: 14px 0;
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-logo span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: var(--gradient);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--muted);
+      transition: color var(--transition);
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-ghost {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 9px 18px;
+      border-radius: 8px;
+      transition: color var(--transition);
+    }
+    .btn-ghost:hover { color: var(--white); }
+    .btn-primary {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--white);
+      background: var(--gradient);
+      padding: 10px 22px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 4px 20px rgba(232,35,42,0.3);
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(232,35,42,0.45);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span {
+      width: 24px; height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: var(--transition);
+    }
+    /* Mobile nav */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: 68px; left: 0; right: 0;
+      background: rgba(10,12,16,0.97);
+      backdrop-filter: blur(20px);
+      padding: 24px;
+      z-index: 999;
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      gap: 16px;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-size: 1rem;
+      color: var(--muted);
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      transition: color var(--transition);
+    }
+    .mobile-nav a:hover { color: var(--white); }
+    .mobile-nav .btn-primary { text-align: center; margin-top: 8px; }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 120px 0 80px;
+    }
+
+    /* Animated background grid */
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+    }
+    /* Red glow orb */
+    #hero::after {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,35,42,0.18) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232,35,42,0.1);
+      border: 1px solid rgba(232,35,42,0.3);
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--red-light);
+      margin-bottom: 36px;
+      animation: fadeDown 0.8s ease 0.2s both;
+    }
+    .hero-badge::before { content: '🔒'; font-size: 14px; }
+    @keyframes fadeDown {
+      from { opacity:0; transform:translateY(-20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .hero-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      color: var(--white);
+      margin-bottom: 24px;
+      animation: fadeUp 0.8s ease 0.35s both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(30px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .hero-heading em {
+      font-style: normal;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 40px;
+      animation: fadeUp 0.8s ease 0.5s both;
+    }
+    .hero-cta {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 0.8s ease 0.65s both;
+    }
+    .btn-hero {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+      background: var(--gradient);
+      padding: 16px 36px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 6px 30px rgba(232,35,42,0.4);
+    }
+    .btn-hero:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(232,35,42,0.55);
+    }
+    .btn-outline {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text);
+      background: transparent;
+      padding: 16px 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .btn-outline:hover {
+      border-color: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.04);
+    }
+    .hero-note {
+      margin-top: 20px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      animation: fadeUp 0.8s ease 0.8s both;
+    }
+    .hero-note span { color: var(--text); }
+
+    /* Hero visual – shield */
+    .hero-visual {
+      margin: 60px auto 0;
+      max-width: 480px;
+      animation: floatAnim 6s ease-in-out infinite, fadeUp 0.8s ease 0.9s both;
+    }
+    @keyframes floatAnim {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-16px); }
+    }
+    .shield-wrap {
+      position: relative;
+      width: 220px;
+      margin: 0 auto;
+    }
+    .shield-svg { filter: drop-shadow(0 0 40px rgba(232,35,42,0.5)); }
+    .shield-rings {
+      position: absolute;
+      inset: -60px;
+      border-radius: 50%;
+      border: 1px solid rgba(232,35,42,0.12);
+      animation: ringPulse 3s ease-in-out infinite;
+    }
+    .shield-rings:nth-child(2) {
+      inset: -100px;
+      animation-delay: 0.5s;
+      border-color: rgba(232,35,42,0.07);
+    }
+    .shield-rings:nth-child(3) {
+      inset: -140px;
+      animation-delay: 1s;
+      border-color: rgba(232,35,42,0.04);
+    }
+    @keyframes ringPulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.4; transform:scale(1.04); }
+    }
+
+    /* Floating stat cards */
+    .hero-stats-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 50px;
+      animation: fadeUp 0.8s ease 1s both;
+    }
+    .hero-stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      text-align: center;
+      min-width: 130px;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .hero-stat:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+    .hero-stat-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+    }
+    .hero-stat-val span { color: var(--red-light); }
+    .hero-stat-lbl { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+    /* ============================================================
+       TRUSTED BAR
+    ============================================================ */
+    #trusted {
+      padding: 28px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--dark2);
+    }
+    .trusted-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .trusted-label { font-size: 0.78rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .trusted-logos { display: flex; gap: 36px; align-items: center; flex-wrap: wrap; justify-content: center; }
+    .trusted-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color var(--transition);
+    }
+    .trusted-logo:hover { color: rgba(255,255,255,0.5); }
+
+    /* ============================================================
+       FEATURES
+    ============================================================ */
+    #features {
+      padding: 100px 0;
+      background: var(--dark2);
+    }
+    .features-header { text-align: center; margin-bottom: 64px; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gradient);
+      transform: scaleX(0);
+      transition: transform var(--transition);
+    }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-card:hover {
+      border-color: rgba(232,35,42,0.2);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+    .feature-icon {
+      width: 56px; height: 56px;
+      background: rgba(232,35,42,0.1);
+      border: 1px solid rgba(232,35,42,0.2);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      margin-bottom: 24px;
+      transition: background var(--transition);
+    }
+    .feature-card:hover .feature-icon {
+      background: rgba(232,35,42,0.2);
+    }
+    .feature-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .feature-desc { font-size: 0.92rem; color: var(--muted); line-height: 1.75; }
+    .feature-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--red-light);
+      margin-top: 20px;
+      transition: gap var(--transition);
+    }
+    .feature-link:hover { gap: 10px; }
+
+    /* ============================================================
+       BENEFITS
+    ============================================================ */
+    #benefits {
+      padding: 100px 0;
+      background: var(--dark);
+    }
+    .benefits-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .benefits-visual { position: relative; }
+    .bv-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .bv-card:hover { transform: translateX(8px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+    .bv-icon {
+      width: 46px; height: 46px; flex-shrink: 0;
+      background: var(--gradient);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .bv-text h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .bv-text p { font-size: 0.85rem; color: var(--muted); }
+    .benefits-content { }
+    .benefits-list { list-style: none; display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
+    .benefits-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    .check-icon {
+      width: 22px; height: 22px; flex-shrink: 0;
+      background: rgba(232,35,42,0.1);
+      border: 1px solid rgba(232,35,42,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      color: var(--red-light);
+      margin-top: 2px;
+    }
+
+    /* ============================================================
+       DEVICES
+    ============================================================ */
+    #devices {
+      padding: 100px 0;
+      background: var(--dark2);
+      text-align: center;
+    }
+    .devices-header { margin-bottom: 70px; }
+    .devices-showcase {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .device-item { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .device-name {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Laptop SVG device */
+    .device-laptop svg { filter: drop-shadow(0 20px 40px rgba(232,35,42,0.2)); }
+
+    /* Phone device */
+    .device-phone svg { filter: drop-shadow(0 16px 30px rgba(232,35,42,0.2)); }
+
+    /* Tablet device */
+    .device-tablet svg { filter: drop-shadow(0 18px 35px rgba(232,35,42,0.2)); }
+
+    /* ── OS Chips ── */
+    .device-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 60px;
+    }
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 9px 18px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--muted);
+      transition: border-color var(--transition), color var(--transition);
+    }
+    .chip:hover { border-color: var(--red); color: var(--white); }
+
+    /* ============================================================
+       STATS
+    ============================================================ */
+    #stats {
+      padding: 100px 0;
+      background: var(--dark);
+    }
+    .stats-inner {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 70px 60px;
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr 1px 1fr;
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stats-inner::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gradient);
+    }
+    .stat-divider { background: var(--border); align-self: stretch; }
+    .stat-item { text-align: center; }
+    .stat-number {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .stat-number span { color: var(--red-light); }
+    .stat-desc { font-size: 0.95rem; color: var(--muted); }
+    .stat-icon { font-size: 28px; margin-bottom: 12px; }
+    /* Number counter animation */
+    .count-anim { display: inline-block; }
+
+    /* ============================================================
+       PLANS / CTA STRIP
+    ============================================================ */
+    #cta-strip {
+      padding: 100px 0;
+      background: var(--dark2);
+    }
+    .cta-inner {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .cta-inner .section-title { margin-bottom: 16px; }
+    .cta-inner .section-sub { margin: 0 auto 40px; }
+    .plans-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto 40px;
+    }
+    .plan-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      text-align: center;
+      position: relative;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .plan-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+    .plan-card.popular {
+      border-color: var(--red);
+      box-shadow: 0 0 0 1px var(--red), 0 0 40px rgba(232,35,42,0.2);
+    }
+    .plan-badge {
+      position: absolute;
+      top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--gradient);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .plan-duration {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .plan-price {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+    .plan-price sub { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
+    .plan-note { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    #footer {
+      background: var(--dark);
+      border-top: 1px solid var(--border);
+      padding: 60px 0 32px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-top: 16px;
+      max-width: 260px;
+      line-height: 1.8;
+    }
+    .footer-col h5 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a {
+      font-size: 0.875rem;
+      color: var(--muted);
+      transition: color var(--transition);
+    }
+    .footer-col ul a:hover { color: var(--white); }
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-bottom p { font-size: 0.82rem; color: var(--muted); }
+    .footer-socials { display: flex; gap: 12px; }
+    .social-btn {
+      width: 36px; height: 36px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .social-btn:hover { border-color: var(--red); background: rgba(232,35,42,0.1); }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 900px) {
+      .nav-links, .nav-actions .btn-ghost { display: none; }
+      .hamburger { display: flex; }
+      .features-grid { grid-template-columns: 1fr; }
+      .benefits-inner { grid-template-columns: 1fr; gap: 40px; }
+      .stats-inner {
+        grid-template-columns: 1fr;
+        padding: 48px 32px;
+      }
+      .stat-divider { display: none; }
+      .plans-row { grid-template-columns: 1fr; max-width: 320px; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .hero-heading { font-size: 2.4rem; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+      .devices-showcase { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <nav id="navbar">
+    <div class="container">
+      <div class="nav-inner">
+        <!-- Logo -->
+        <a href="#" class="nav-logo">
+          <div class="logo-icon">🛡</div>
+          Nex<span>VPN</span>
+        </a>
+
+        <!-- Links -->
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#benefits">Benefits</a></li>
+          <li><a href="#devices">Devices</a></li>
+          <li><a href="#stats">Network</a></li>
+        </ul>
+
+        <!-- Actions -->
+        <div class="nav-actions">
+          <a href="#" class="btn-ghost">Sign In</a>
+          <button class="btn-primary" onclick="scrollToSection('cta-strip')">Get Started</button>
+        </div>
+
+        <!-- Hamburger -->
+        <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Nav -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="#features" onclick="toggleMenu()">Features</a>
+    <a href="#benefits" onclick="toggleMenu()">Benefits</a>
+    <a href="#devices" onclick="toggleMenu()">Devices</a>
+    <a href="#stats" onclick="toggleMenu()">Network</a>
+    <a href="#" onclick="toggleMenu()">Sign In</a>
+    <button class="btn-primary" onclick="toggleMenu();scrollToSection('cta-strip')">Get Started</button>
+  </div>
+
+
+  <!-- ============================================================
+       HERO SECTION
+  ============================================================ -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-inner">
+
+        <!-- Badge -->
+        <div class="hero-badge">Trusted by 35 million+ users worldwide</div>
+
+        <!-- Heading -->
+        <h1 class="hero-heading">
+          The VPN that<br/>
+          <em>just works.</em>
+        </h1>
+
+        <!-- Sub -->
+        <p class="hero-sub">
+          One tap to private, unrestricted internet. Military-grade encryption,
+          blazing fast speeds, and zero-logs policy — on every device you own.
+        </p>
+
+        <!-- CTA -->
+        <div class="hero-cta">
+          <button class="btn-hero" onclick="scrollToSection('cta-strip')">Get Started — Free Trial</button>
+          <button class="btn-outline" onclick="scrollToSection('features')">See How It Works ↓</button>
+        </div>
+
+        <!-- Note -->
+        <p class="hero-note">✓ <span>30-day money-back guarantee</span> &nbsp;·&nbsp; ✓ <span>No credit card required</span></p>
+
+        <!-- Floating Shield -->
+        <div class="hero-visual">
+          <div class="shield-wrap">
+            <div class="shield-rings"></div>
+            <div class="shield-rings"></div>
+            <div class="shield-rings"></div>
+            <!-- Shield SVG -->
+            <svg class="shield-svg" width="220" height="240" viewBox="0 0 220 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="sg1" x1="0" y1="0" x2="220" y2="240" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#E8232A"/>
+                  <stop offset="100%" stop-color="#FF6B35"/>
+                </linearGradient>
+                <linearGradient id="sg2" x1="0" y1="0" x2="220" y2="240" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#1A2035"/>
+                  <stop offset="100%" stop-color="#0F1219"/>
+                </linearGradient>
+              </defs>
+              <!-- Outer shield -->
+              <path d="M110 8 L202 44 L202 128 C202 178 158 218 110 232 C62 218 18 178 18 128 L18 44 Z"
+                fill="url(#sg1)" opacity="0.9"/>
+              <!-- Inner shield -->
+              <path d="M110 26 L186 56 L186 128 C186 170 150 204 110 216 C70 204 34 170 34 128 L34 56 Z"
+                fill="url(#sg2)"/>
+              <!-- Lock body -->
+              <rect x="85" y="115" width="50" height="42" rx="8" fill="url(#sg1)" opacity="0.95"/>
+              <!-- Lock shackle -->
+              <path d="M95 115 L95 102 C95 90 125 90 125 102 L125 115" stroke="url(#sg1)" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.95"/>
+              <!-- Keyhole -->
+              <circle cx="110" cy="132" r="7" fill="#0F1219"/>
+              <rect x="107" y="132" width="6" height="12" rx="3" fill="#0F1219"/>
+              <!-- Shine -->
+              <path d="M60 55 L60 90" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.15"/>
+              <path d="M50 70 L50 100" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.08"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="hero-stats-row">
+          <div class="hero-stat">
+            <div class="hero-stat-val"><span>160</span>+</div>
+            <div class="hero-stat-lbl">Server Locations</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val"><span>94</span></div>
+            <div class="hero-stat-lbl">Countries</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">∞</div>
+            <div class="hero-stat-lbl">Bandwidth</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val"><span>35M</span>+</div>
+            <div class="hero-stat-lbl">Users</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       TRUSTED BAR
+  ============================================================ -->
+  <div id="trusted">
+    <div class="container">
+      <div class="trusted-inner">
+        <span class="trusted-label">Trusted by</span>
+        <div class="trusted-logos">
+          <span class="trusted-logo">TechCrunch</span>
+          <span class="trusted-logo">Forbes</span>
+          <span class="trusted-logo">PCMag</span>
+          <span class="trusted-logo">Wired</span>
+          <span class="trusted-logo">Cnet</span>
+          <span class="trusted-logo">The Verge</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       FEATURES SECTION
+  ============================================================ -->
+  <section id="features">
+    <div class="container">
+      <div class="features-header reveal">
+        <span class="section-label">Why NexVPN</span>
+        <h2 class="section-title">Everything you need, <span class="highlight">nothing you don't</span></h2>
+        <p class="section-sub" style="margin:0 auto;">Powerful privacy tools built for everyday people. No PhD in cybersecurity required.</p>
+      </div>
+
+      <div class="features-grid">
+
+        <!-- Feature 1 -->
+        <div class="feature-card reveal delay-1">
+          <div class="feature-icon">🌍</div>
+          <h3 class="feature-title">Secure Access Worldwide</h3>
+          <p class="feature-desc">
+            Connect to 160+ locations across 94 countries with a single tap.
+            Bypass geo-restrictions, censorship, and regional blocks effortlessly.
+          </p>
+          <a href="#" class="feature-link">Learn more →</a>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card reveal delay-2">
+          <div class="feature-icon">⚡</div>
+          <h3 class="feature-title">One-Click Safer Internet</h3>
+          <p class="feature-desc">
+            Connect in under 3 seconds with our Lightway protocol — our fastest
+            and most reliable technology. Privacy is just one tap away.
+          </p>
+          <a href="#" class="feature-link">Learn more →</a>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card reveal delay-3">
+          <div class="feature-icon">📱</div>
+          <h3 class="feature-title">Use on Every Device</h3>
+          <p class="feature-desc">
+            One subscription covers all your devices — iPhone, Android, Mac,
+            Windows, Linux, routers, smart TVs, and more. Up to 8 simultaneous connections.
+          </p>
+          <a href="#" class="feature-link">Learn more →</a>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card reveal delay-1">
+          <div class="feature-icon">🔐</div>
+          <h3 class="feature-title">Zero-Knowledge Encryption</h3>
+          <p class="feature-desc">
+            AES-256 encryption, the same standard used by governments and militaries,
+            protects every packet of data you send or receive.
+          </p>
+          <a href="#" class="feature-link">Learn more →</a>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card reveal delay-2">
+          <div class="feature-icon">🚫</div>
+          <h3 class="feature-title">Strict No-Logs Policy</h3>
+          <p class="feature-desc">
+            We never store your browsing history, IP address, or connection timestamps.
+            Audited independently by PwC — your privacy is verified.
+          </p>
+          <a href="#" class="feature-link">Learn more →</a>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card reveal delay-3">
+          <div class="feature-icon">🛡️</div>
+          <h3 class="feature-title">Kill Switch Protection</h3>
+          <p class="feature-desc">
+            If your VPN connection drops, our Network Lock kills your internet
+            instantly to prevent any data leaks. Always-on protection, always.
+          </p>
+          <a href="#" class="feature-link">Learn more →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       BENEFITS SECTION
+  ============================================================ -->
+  <section id="benefits">
+    <div class="container">
+      <div class="benefits-inner">
+
+        <!-- Left: Visual Cards -->
+        <div class="benefits-visual reveal-left">
+          <div class="bv-card">
+            <div class="bv-icon">🔒</div>
+            <div class="bv-text">
+              <h4>Stronger Data Protection</h4>
+              <p>Military-grade AES-256 encryption wraps every byte you transmit — on public Wi-Fi or at home.</p>
+            </div>
+          </div>
+          <div class="bv-card">
+            <div class="bv-icon">🌐</div>
+            <div class="bv-text">
+              <h4>Works Seamlessly Everywhere</h4>
+              <p>No interruptions, no configuration headaches. NexVPN just connects — across airports, hotels, and offices.</p>
+            </div>
+          </div>
+          <div class="bv-card">
+            <div class="bv-icon">⚡</div>
+            <div class="bv-text">
+              <h4>Lightning-Fast Connectivity</h4>
+              <p>Our Lightway protocol is engineered for speed. Stream 4K, game online, and video call with zero lag.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Content -->
+        <div class="benefits-content reveal-right">
+          <span class="section-label">Benefits</span>
+          <h2 class="section-title">Privacy without <span class="highlight">compromise</span></h2>
+          <p class="section-sub">
+            NexVPN was built with one mission: give every person on the internet the same
+            privacy and freedom that only experts used to have.
+          </p>
+          <ul class="benefits-list">
+            <li>
+              <span class="check-icon">✓</span>
+              <span>Protect your data on any network — even unsecured public Wi-Fi</span>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <span>Stream your favourite shows without buffering or geo-blocks</span>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <span>Hide your IP address and online identity from trackers</span>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <span>Safe and private connection 24/7 with auto-connect</span>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <span>24/7 human support via live chat — response under 60 seconds</span>
+            </li>
+          </ul>
+          <div style="margin-top:36px;">
+            <button class="btn-primary" style="font-size:1rem;padding:14px 32px;" onclick="scrollToSection('cta-strip')">
+              Start Your Free Trial
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       DEVICES SECTION
+  ============================================================ -->
+  <section id="devices">
+    <div class="container">
+
+      <div class="devices-header reveal">
+        <span class="section-label">All Platforms</span>
+        <h2 class="section-title">One VPN. <span class="highlight">Every device.</span></h2>
+        <p class="section-sub" style="margin:0 auto;">From pocket to desktop, NexVPN keeps all your devices protected with one subscription.</p>
+      </div>
+
+      <!-- Device illustrations -->
+      <div class="devices-showcase reveal">
+
+        <!-- Phone -->
+        <div class="device-item device-phone delay-1">
+          <svg width="90" height="170" viewBox="0 0 90 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="82" height="162" rx="16" fill="#1A2035" stroke="#2A3550" stroke-width="2"/>
+            <rect x="10" y="10" width="70" height="150" rx="12" fill="#0F1219"/>
+            <rect x="28" y="14" width="34" height="4" rx="2" fill="#2A3550"/>
+            <circle cx="45" cy="148" r="7" fill="#2A3550"/>
+            <!-- VPN icon on screen -->
+            <rect x="18" y="30" width="54" height="90" rx="8" fill="#161B26"/>
+            <text x="45" y="75" text-anchor="middle" fill="#E8232A" font-size="28">🛡</text>
+            <rect x="26" y="90" width="38" height="5" rx="2.5" fill="#E8232A" opacity="0.7"/>
+            <rect x="30" y="100" width="30" height="4" rx="2" fill="#2A3550"/>
+          </svg>
+          <span class="device-name">Mobile</span>
+        </div>
+
+        <!-- Laptop (larger, centre) -->
+        <div class="device-item device-laptop delay-2">
+          <svg width="340" height="220" viewBox="0 0 340 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Screen bezel -->
+            <rect x="30" y="10" width="280" height="180" rx="12" fill="#1A2035" stroke="#2A3550" stroke-width="2"/>
+            <!-- Screen -->
+            <rect x="38" y="18" width="264" height="160" rx="8" fill="#0F1219"/>
+            <!-- VPN UI on screen -->
+            <rect x="50" y="28" width="240" height="140" rx="6" fill="#161B26"/>
+            <!-- Nav bar sim -->
+            <rect x="50" y="28" width="240" height="26" rx="6" fill="#1A2035"/>
+            <circle cx="66" cy="41" r="5" fill="#E8232A" opacity="0.7"/>
+            <circle cx="82" cy="41" r="5" fill="#FF9500" opacity="0.7"/>
+            <circle cx="98" cy="41" r="5" fill="#34C759" opacity="0.7"/>
+            <rect x="120" y="36" width="100" height="10" rx="5" fill="#2A3550"/>
+            <!-- Map lines -->
+            <path d="M70 100 Q130 60 170 100 Q210 140 270 80" stroke="#E8232A" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5" fill="none"/>
+            <!-- Globe dots -->
+            <circle cx="80" cy="100" r="4" fill="#E8232A" opacity="0.8"/>
+            <circle cx="170" cy="100" r="5" fill="#E8232A"/>
+            <circle cx="260" cy="82" r="4" fill="#E8232A" opacity="0.8"/>
+            <!-- Status connected -->
+            <rect x="130" y="140" width="80" height="20" rx="10" fill="rgba(52,199,89,0.15)" stroke="rgba(52,199,89,0.4)" stroke-width="1"/>
+            <text x="170" y="154" text-anchor="middle" fill="#34C759" font-size="9" font-family="sans-serif">● CONNECTED</text>
+            <!-- Base -->
+            <rect x="10" y="192" width="320" height="16" rx="4" fill="#1A2035" stroke="#2A3550" stroke-width="1"/>
+            <rect x="120" y="193" width="100" height="8" rx="4" fill="#2A3550"/>
+          </svg>
+          <span class="device-name">Laptop</span>
+        </div>
+
+        <!-- Tablet -->
+        <div class="device-item device-tablet delay-3">
+          <svg width="130" height="170" viewBox="0 0 130 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="122" height="162" rx="14" fill="#1A2035" stroke="#2A3550" stroke-width="2"/>
+            <rect x="10" y="10" width="110" height="150" rx="10" fill="#0F1219"/>
+            <circle cx="65" cy="155" r="5" fill="#2A3550"/>
+            <!-- App grid on screen -->
+            <rect x="18" y="16" width="94" height="130" rx="8" fill="#161B26"/>
+            <text x="65" y="68" text-anchor="middle" fill="#E8232A" font-size="32">🛡</text>
+            <rect x="32" y="84" width="62" height="6" rx="3" fill="#E8232A" opacity="0.7"/>
+            <rect x="40" y="96" width="46" height="5" rx="2.5" fill="#2A3550"/>
+            <rect x="28" y="110" width="74" height="24" rx="12" fill="rgba(232,35,42,0.2)" stroke="rgba(232,35,42,0.4)" stroke-width="1"/>
+            <text x="65" y="126" text-anchor="middle" fill="#E8232A" font-size="9" font-family="sans-serif">PROTECT NOW</text>
+          </svg>
+          <span class="device-name">Tablet</span>
+        </div>
+
+      </div>
+
+      <!-- OS Chips -->
+      <div class="device-chips reveal delay-2">
+        <div class="chip">🍎 iOS</div>
+        <div class="chip">🤖 Android</div>
+        <div class="chip">🪟 Windows</div>
+        <div class="chip">🍏 macOS</div>
+        <div class="chip">🐧 Linux</div>
+        <div class="chip">📺 Smart TV</div>
+        <div class="chip">🎮 Routers</div>
+        <div class="chip">🌐 Browser Extension</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       STATS SECTION
+  ============================================================ -->
+  <section id="stats">
+    <div class="container">
+
+      <div class="reveal" style="text-align:center;margin-bottom:56px;">
+        <span class="section-label">Our Network</span>
+        <h2 class="section-title">Built for the entire <span class="highlight">world</span></h2>
+      </div>
+
+      <div class="stats-inner reveal">
+        <!-- Stat 1 -->
+        <div class="stat-item">
+          <div class="stat-icon">📍</div>
+          <div class="stat-number">
+            <span class="count-anim" data-target="160">0</span><span style="color:var(--red-light)">+</span>
+          </div>
+          <div class="stat-desc">Server Locations worldwide</div>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <!-- Stat 2 -->
+        <div class="stat-item">
+          <div class="stat-icon">🌍</div>
+          <div class="stat-number">
+            <span class="count-anim" data-target="94">0</span>
+          </div>
+          <div class="stat-desc">Countries covered</div>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <!-- Stat 3 -->
+        <div class="stat-item">
+          <div class="stat-icon">♾️</div>
+          <div class="stat-number" style="font-size:3.5rem;">∞</div>
+          <div class="stat-desc">Unlimited bandwidth, always</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       CTA / PLANS SECTION
+  ============================================================ -->
+  <section id="cta-strip">
+    <div class="container">
+      <div class="cta-inner">
+        <span class="section-label reveal">Pricing</span>
+        <h2 class="section-title reveal delay-1">Simple, transparent <span class="highlight">pricing</span></h2>
+        <p class="section-sub reveal delay-2">All plans include every feature. No hidden fees. Cancel anytime.</p>
+      </div>
+
+      <div class="plans-row reveal delay-2">
+
+        <!-- Monthly -->
+        <div class="plan-card">
+          <div class="plan-duration">Monthly</div>
+          <div class="plan-price">$12<sub>/mo</sub></div>
+          <div class="plan-note">Billed monthly</div>
+          <button class="btn-primary" style="width:100%;margin-top:20px;font-size:0.9rem;padding:12px;" onclick="alert('Redirecting to checkout…')">Get Started</button>
+        </div>
+
+        <!-- 1 Year (popular) -->
+        <div class="plan-card popular">
+          <div class="plan-badge">🔥 Most Popular</div>
+          <div class="plan-duration">1 Year</div>
+          <div class="plan-price">$6<sub>/mo</sub></div>
+          <div class="plan-note">Billed $72/year · Save 49%</div>
+          <button class="btn-primary" style="width:100%;margin-top:20px;font-size:0.9rem;padding:12px;" onclick="alert('Redirecting to checkout…')">Get Started</button>
+        </div>
+
+        <!-- 2 Years -->
+        <div class="plan-card">
+          <div class="plan-duration">2 Years</div>
+          <div class="plan-price">$4<sub>/mo</sub></div>
+          <div class="plan-note">Billed $96/2yr · Save 67%</div>
+          <button class="btn-primary" style="width:100%;margin-top:20px;font-size:0.9rem;padding:12px;" onclick="alert('Redirecting to checkout…')">Get Started</button>
+        </div>
+
+      </div>
+
+      <p class="reveal" style="text-align:center;font-size:0.82rem;color:var(--muted);">
+        ✓ 30-day money-back guarantee &nbsp;·&nbsp; ✓ No logs &nbsp;·&nbsp; ✓ 8 simultaneous devices
+      </p>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer id="footer">
+    <div class="container">
+
+      <div class="footer-top">
+        <!-- Brand -->
+        <div class="footer-brand">
+          <a href="#" class="nav-logo" style="font-size:1.3rem;">
+            <div class="logo-icon" style="width:28px;height:28px;font-size:13px;">🛡</div>
+            Nex<span>VPN</span>
+          </a>
+          <p>The fastest, most trusted VPN on the planet. Protect your privacy in one click.</p>
+        </div>
+
+        <!-- Products -->
+        <div class="footer-col">
+          <h5>Product</h5>
+          <ul>
+            <li><a href="#">What is a VPN?</a></li>
+            <li><a href="#">VPN for Streaming</a></li>
+            <li><a href="#">VPN for Gaming</a></li>
+            <li><a href="#">VPN for Business</a></li>
+          </ul>
+        </div>
+
+        <!-- Resources -->
+        <div class="footer-col">
+          <h5>Resources</h5>
+          <ul>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Security Guides</a></li>
+            <li><a href="#">VPN Reviews</a></li>
+            <li><a href="#">Speed Test</a></li>
+          </ul>
+        </div>
+
+        <!-- Support -->
+        <div class="footer-col">
+          <h5>Support</h5>
+          <ul>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Live Chat</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="footer-bottom">
+        <p>© 2025 NexVPN Inc. All rights reserved. Built with ❤️ for a safer internet.</p>
+        <div class="footer-socials">
+          <div class="social-btn" title="Twitter/X">𝕏</div>
+          <div class="social-btn" title="Facebook">f</div>
+          <div class="social-btn" title="Instagram">📸</div>
+          <div class="social-btn" title="LinkedIn">in</div>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+    /* ── Sticky Navbar ── */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    /* ── Mobile Menu Toggle ── */
+    function toggleMenu() {
+      const nav = document.getElementById('mobileNav');
+      nav.classList.toggle('open');
+    }
+
+    /* ── Smooth Scroll Helper ── */
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* ── Intersection Observer – Scroll Reveal ── */
+    const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => observer.observe(el));
+
+    /* ── Animated Number Counter ── */
+    const counters = document.querySelectorAll('.count-anim');
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.target, 10);
+          let current = 0;
+          const increment = Math.ceil(target / 60);
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            el.textContent = current;
+          }, 25);
+          counterObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.3 });
+    counters.forEach(c => counterObserver.observe(c));
+
+    /* ── Close mobile nav on outside click ── */
+    document.addEventListener('click', (e) => {
+      const nav = document.getElementById('mobileNav');
+      const ham = document.getElementById('hamburger');
+      if (nav.classList.contains('open') && !nav.contains(e.target) && !ham.contains(e.target)) {
+        nav.classList.remove('open');
+      }
+    });
+  </script>
+
+</body>
+</html>

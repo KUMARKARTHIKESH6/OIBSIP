@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>🍕 PizzaApp — Order Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --red:#e53e3e;--red-d:#c53030;--red-l:#fff5f5;--red-ll:#fed7d7;
+  --orange:#dd6b20;--green:#276749;--green-l:#c6f6d5;--green-bg:#f0fff4;
+  --yellow:#b7791f;--yellow-l:#fefcbf;--blue:#2b6cb0;--blue-l:#bee3f8;
+  --dark:#1a202c;--dark2:#2d3748;--gray:#718096;--lgray:#a0aec0;
+  --border:#e2e8f0;--light:#f7fafc;--white:#ffffff;
+  --shadow:0 2px 16px rgba(0,0,0,.07);--shadow-lg:0 8px 40px rgba(0,0,0,.12);
+  --radius:12px;--font:'Nunito',sans-serif;--display:'Playfair Display',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--light);color:var(--dark);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:var(--font)}
+input,select,textarea{font-family:var(--font)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--light)}
+::-webkit-scrollbar-thumb{background:var(--red-ll);border-radius:3px}
+
+/* ─── LAYOUT ─── */
+.app{min-height:100vh;display:flex;flex-direction:column}
+.page{flex:1;padding:28px 0 60px}
+.container{max-width:1160px;margin:0 auto;padding:0 20px}
+
+/* ─── NAVBAR ─── */
+.navbar{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.nav-inner{max-width:1160px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.nav-logo{font-family:var(--display);font-size:1.35rem;font-weight:800;color:var(--red);display:flex;align-items:center;gap:7px}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{padding:7px 13px;border-radius:8px;font-size:.87rem;font-weight:700;color:var(--dark2);transition:.2s;border:none;background:none;cursor:pointer}
+.nav-link:hover,.nav-link.active{background:var(--red-l);color:var(--red-d)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-cart{position:relative;padding:7px 13px;border-radius:8px;font-size:.87rem;font-weight:700;color:var(--dark2);transition:.2s;border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:5px}
+.nav-cart:hover{background:var(--red-l);color:var(--red-d)}
+.cart-badge{position:absolute;top:2px;right:4px;background:var(--red);color:#fff;font-size:.58rem;font-weight:900;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.nav-user{font-size:.8rem;color:var(--gray);font-weight:600}
+.nav-role{background:var(--red-ll);color:var(--red-d);border-radius:100px;padding:2px 8px;font-size:.7rem;font-weight:800;margin-left:4px}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 20px;border-radius:8px;font-size:.88rem;font-weight:700;border:none;transition:all .2s;white-space:nowrap;cursor:pointer;font-family:var(--font)}
+.btn-primary{background:var(--red);color:#fff}
+.btn-primary:hover{background:var(--red-d);transform:translateY(-1px);box-shadow:0 4px 14px rgba(229,62,62,.35)}
+.btn-secondary{background:var(--dark);color:#fff}
+.btn-secondary:hover{background:var(--dark2)}
+.btn-outline{background:transparent;color:var(--red);border:2px solid var(--red)}
+.btn-outline:hover{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;color:var(--gray);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--border)}
+.btn-green{background:#38a169;color:#fff}
+.btn-green:hover{background:#2f855a}
+.btn-sm{padding:6px 13px;font-size:.8rem}
+.btn-lg{padding:13px 30px;font-size:.97rem}
+.btn-xl{padding:15px 36px;font-size:1.05rem}
+.btn-block{width:100%}
+.btn:disabled{opacity:.55;pointer-events:none}
+
+/* ─── FORMS ─── */
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.form-label{font-size:.84rem;font-weight:700;color:var(--dark2)}
+.form-control{padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.93rem;font-family:var(--font);color:var(--dark);transition:.2s;outline:none;background:var(--white);width:100%}
+.form-control:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(229,62,62,.1)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.form-row{grid-template-columns:1fr}}
+
+/* ─── CARDS ─── */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-body{padding:22px}
+
+/* ─── BADGES ─── */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:800}
+.badge-green{background:var(--green-l);color:var(--green)}
+.badge-red{background:var(--red-ll);color:var(--red-d)}
+.badge-yellow{background:var(--yellow-l);color:var(--yellow)}
+.badge-blue{background:var(--blue-l);color:var(--blue)}
+
+/* ─── ALERTS ─── */
+.alert{padding:11px 15px;border-radius:8px;font-size:.86rem;margin-bottom:14px;font-weight:600}
+.alert-error{background:var(--red-ll);color:var(--red-d)}
+.alert-success{background:var(--green-l);color:var(--green)}
+.alert-info{background:var(--blue-l);color:var(--blue)}
+
+/* ─── SPINNER ─── */
+.spinner{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+.spinner-sm{width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-box{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:14px;color:var(--gray);font-weight:600}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:60px 20px;color:var(--gray)}
+.empty-icon{font-size:54px;margin-bottom:14px}
+.empty h3{font-size:1.15rem;font-weight:800;color:var(--dark2);margin-bottom:6px}
+
+/* ─── TOAST ─── */
+#toast-container{position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:var(--white);border-radius:10px;padding:12px 18px;box-shadow:0 4px 24px rgba(0,0,0,.15);font-size:.87rem;font-weight:700;display:flex;align-items:center;gap:8px;animation:toastIn .3s ease;pointer-events:auto;max-width:320px}
+.toast-success{border-left:4px solid #38a169}
+.toast-error{border-left:4px solid var(--red)}
+.toast-info{border-left:4px solid #3182ce}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+
+/* ─── AUTH PAGES ─── */
+.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fff5f5 0%,#fff 60%,#fff5f5 100%);padding:16px}
+.auth-card{background:var(--white);border-radius:20px;padding:40px 36px;width:100%;max-width:420px;box-shadow:0 8px 50px rgba(0,0,0,.1)}
+.auth-logo{font-family:var(--display);font-size:1.7rem;font-weight:800;color:var(--red);text-align:center;margin-bottom:6px}
+.auth-sub{text-align:center;color:var(--gray);font-size:.9rem;margin-bottom:28px;font-weight:600}
+.auth-footer{text-align:center;margin-top:20px;font-size:.85rem;color:var(--gray);font-weight:600}
+.auth-footer a{color:var(--red);font-weight:800}
+.demo-box{background:var(--light);border-radius:10px;padding:14px;margin-top:16px}
+.demo-box p{font-size:.78rem;font-weight:700;color:var(--gray);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.demo-btns{display:flex;gap:8px}
+.demo-btn{flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);font-size:.8rem;font-weight:700;cursor:pointer;transition:.2s;font-family:var(--font)}
+.demo-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* ─── HERO BANNER ─── */
+.hero-banner{background:linear-gradient(135deg,#e53e3e 0%,#c53030 50%,#9b2c2c 100%);border-radius:18px;padding:32px 36px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative;overflow:hidden}
+.hero-banner::before{content:'🍕';position:absolute;right:-10px;top:-20px;font-size:120px;opacity:.12;transform:rotate(-15deg)}
+.hero-banner::after{content:'🍕';position:absolute;right:80px;bottom:-20px;font-size:80px;opacity:.08;transform:rotate(10deg)}
+.hero-text h1{font-family:var(--display);font-size:1.9rem;font-weight:800;color:#fff;margin-bottom:5px}
+.hero-text p{color:rgba(255,255,255,.8);font-size:.95rem;font-weight:600}
+.hero-stats{display:flex;gap:20px;margin-top:18px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .val{font-family:var(--display);font-size:1.5rem;font-weight:800;color:#fff}
+.hero-stat .lbl{font-size:.72rem;color:rgba(255,255,255,.7);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+
+/* ─── FILTER BAR ─── */
+.filter-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+.filter-btns{display:flex;gap:7px;flex-wrap:wrap}
+
+/* ─── PIZZA CARDS ─── */
+.pizza-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.pizza-card{background:var(--white);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;transition:.25s;display:flex;flex-direction:column}
+.pizza-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.pizza-img-wrap{height:185px;overflow:hidden;background:var(--light);position:relative}
+.pizza-img-wrap img{width:100%;height:100%;object-fit:cover;transition:.3s}
+.pizza-card:hover .pizza-img-wrap img{transform:scale(1.05)}
+.pizza-cat-badge{position:absolute;top:10px;left:10px}
+.pizza-rating{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.92);border-radius:100px;padding:3px 9px;font-size:.75rem;font-weight:800;color:var(--dark)}
+.pizza-body{padding:16px 18px;flex:1;display:flex;flex-direction:column}
+.pizza-name{font-size:1rem;font-weight:800;margin-bottom:5px}
+.pizza-desc{font-size:.8rem;color:var(--gray);margin-bottom:10px;line-height:1.5;flex:1}
+.pizza-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.pizza-chip{background:var(--light);border:1px solid var(--border);border-radius:100px;padding:2px 8px;font-size:.7rem;color:var(--gray);font-weight:600}
+.pizza-footer{display:flex;align-items:center;justify-content:space-between}
+.pizza-price{font-size:1.2rem;font-weight:900;color:var(--red)}
+
+/* ─── PIZZA BUILDER ─── */
+.builder-wrap{max-width:760px}
+.step-bar{display:flex;align-items:center;margin-bottom:22px;overflow-x:auto;padding-bottom:4px;gap:0}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:70px}
+.step-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:900;transition:.3s}
+.step-dot.done{background:#38a169;color:#fff}
+.step-dot.active{background:var(--red);color:#fff;box-shadow:0 0 0 5px rgba(229,62,62,.18)}
+.step-dot.pending{background:var(--border);color:var(--gray)}
+.step-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.step-line{flex:1;height:2px;margin-bottom:20px;transition:.3s}
+.step-line.done{background:#38a169}
+.step-line.pending{background:var(--border)}
+.price-bar{display:flex;justify-content:space-between;align-items:center;background:var(--white);border-radius:10px;padding:12px 18px;margin-bottom:18px;box-shadow:var(--shadow)}
+.option-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px}
+.option-btn{padding:14px 12px;border-radius:10px;border:2px solid var(--border);background:var(--white);cursor:pointer;text-align:center;transition:.2s;font-family:var(--font)}
+.option-btn:hover{border-color:var(--red-ll)}
+.option-btn.selected{border-color:var(--red);background:var(--red-l)}
+.option-btn .opt-name{font-size:.87rem;font-weight:800;color:var(--dark);margin-bottom:3px}
+.option-btn.selected .opt-name{color:var(--red-d)}
+.option-btn .opt-price{font-size:.72rem;color:var(--gray);font-weight:600}
+.multi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px}
+.multi-btn{padding:11px 10px;border:2px solid var(--border);border-radius:9px;background:var(--white);cursor:pointer;font-family:var(--font);font-weight:700;font-size:.84rem;color:var(--dark);position:relative;transition:.2s;text-align:left}
+.multi-btn:hover{border-color:var(--red-ll)}
+.multi-btn.selected{border-color:var(--red);background:var(--red-l);color:var(--red-d)}
+.multi-check{position:absolute;top:5px;right:8px;font-size:.7rem;color:var(--red);font-weight:900}
+.review-table{width:100%;border-collapse:collapse}
+.review-table tr td{padding:11px 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.review-table tr td:first-child{color:var(--gray);font-weight:700;width:40%}
+.review-table tr td:last-child{font-weight:700;color:var(--dark)}
+.review-total{margin-top:16px;padding-top:16px;border-top:2px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.review-total .label{font-weight:700;font-size:.95rem}
+.review-total .price{font-size:1.5rem;font-weight:900;color:var(--red)}
+.builder-nav{display:flex;align-items:center;gap:10px;margin-top:20px}
+
+/* ─── CART ─── */
+.cart-layout{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+.cart-items{flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px}
+.cart-item{background:var(--white);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;align-items:flex-start;gap:14px}
+.cart-item-info{flex:1}
+.cart-item-name{font-weight:800;font-size:.95rem;margin-bottom:3px}
+.cart-item-sub{font-size:.75rem;color:var(--gray);line-height:1.5;margin-bottom:8px}
+.cart-item-price{font-weight:900;color:var(--red);font-size:.95rem}
+.qty-ctrl{display:flex;align-items:center;gap:8px}
+.qty-btn{width:28px;height:28px;border:1.5px solid var(--border);border-radius:7px;background:var(--light);cursor:pointer;font-weight:900;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:.2s}
+.qty-btn:hover{border-color:var(--red);color:var(--red)}
+.qty-val{min-width:22px;text-align:center;font-weight:800;font-size:.9rem}
+.remove-btn{background:none;border:none;cursor:pointer;color:var(--lgray);font-size:1.15rem;transition:.2s;padding:4px}
+.remove-btn:hover{color:var(--red)}
+.cart-summary{width:300px;flex-shrink:0}
+.summary-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:22px}
+.summary-title{font-weight:800;font-size:1rem;margin-bottom:16px}
+.summary-row{display:flex;justify-content:space-between;margin-bottom:9px;font-size:.87rem}
+.summary-row .lbl{color:var(--gray);font-weight:600}
+.summary-row .val{font-weight:700}
+.summary-divider{border:none;border-top:2px dashed var(--border);margin:14px 0}
+.summary-total .lbl{font-weight:800;font-size:1rem}
+.summary-total .val{font-weight:900;color:var(--red);font-size:1.15rem}
+.secure-note{text-align:center;font-size:.72rem;color:var(--lgray);margin-top:10px;font-weight:600}
+
+/* ─── ADDRESS FORM ─── */
+.address-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:24px;margin-bottom:14px}
+.address-title{font-weight:800;margin-bottom:18px;font-size:1rem}
+
+/* ─── ORDERS ─── */
+.order-list{display:flex;flex-direction:column;gap:14px}
+.order-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:20px 22px;cursor:pointer;transition:.2s}
+.order-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.order-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:8px}
+.order-id{font-weight:900;font-size:.92rem}
+.order-date{font-size:.78rem;color:var(--gray);font-weight:600;margin-top:2px}
+.order-items-text{font-size:.83rem;color:var(--gray);margin-bottom:4px;font-weight:600}
+.order-total{font-weight:800;color:var(--dark2);font-size:.9rem}
+.status-pill{padding:5px 14px;border-radius:100px;font-size:.75rem;font-weight:900;white-space:nowrap}
+
+/* ─── ORDER DETAIL ─── */
+.order-detail-wrap{max-width:740px}
+.tracking-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:26px;margin-bottom:18px}
+.tracking-title{font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.live-dot{width:9px;height:9px;border-radius:50%;background:#38a169;display:inline-block;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(56,161,105,.4)}70%{box-shadow:0 0 0 8px rgba(56,161,105,0)}}
+.track-steps{display:flex;justify-content:space-between;position:relative;margin-top:28px}
+.track-line-bg{position:absolute;top:17px;left:24px;right:24px;height:3px;background:var(--border);z-index:0}
+.track-line-fill{position:absolute;top:17px;left:24px;height:3px;background:linear-gradient(90deg,#38a169,var(--red));z-index:1;transition:width .8s ease}
+.track-step{display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;flex:1}
+.track-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:.4s;border:3px solid transparent}
+.track-dot.done{background:#38a169;border-color:#38a169;color:#fff}
+.track-dot.active{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 0 6px rgba(229,62,62,.15)}
+.track-dot.pending{background:var(--white);border-color:var(--border)}
+.track-step-label{font-size:.7rem;font-weight:800;text-align:center;line-height:1.3}
+.status-message{margin-top:20px;padding:13px 16px;border-radius:10px;font-weight:700;font-size:.88rem;border-left:4px solid}
+.order-items-card,.order-address-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:22px;margin-bottom:14px}
+.order-items-title{font-weight:800;margin-bottom:16px}
+.oi-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.oi-row:last-child{border-bottom:none}
+.oi-name{font-weight:700}
+.oi-sub{font-size:.74px;color:var(--gray);margin-top:2px}
+.oi-price{font-weight:800}
+.oi-total-row{display:flex;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:2px solid var(--border)}
+
+/* ─── ADMIN ─── */
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:20px 22px;border-top:4px solid}
+.stat-card .stat-label{font-size:.78rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-card .stat-val{font-family:var(--display);font-size:1.9rem;font-weight:800;color:var(--dark)}
+.stat-card .stat-icon{font-size:1.6rem;float:right;margin-top:-30px}
+.quick-links{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.admin-table-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.admin-table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.admin-table-title{font-weight:800;font-size:.97rem}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--light)}
+th{padding:10px 14px;text-align:left;font-size:.76rem;font-weight:800;color:var(--dark2);text-transform:uppercase;letter-spacing:.4px}
+td{padding:13px 14px;border-bottom:1px solid var(--border);font-size:.86rem;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.status-select{border:1.5px solid var(--border);border-radius:7px;padding:5px 9px;font-size:.8rem;font-family:var(--font);cursor:pointer;background:var(--white);color:var(--dark);font-weight:700}
+.inv-stock-input{width:80px;padding:5px 8px;border:1.5px solid var(--red);border-radius:6px;font-size:.88rem;font-family:var(--font);font-weight:700}
+.inv-low{background:#fffaf0}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:var(--white);border-radius:18px;padding:30px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-title{font-weight:900;font-size:1.1rem;margin-bottom:20px}
+.modal-footer{display:flex;gap:10px;margin-top:8px}
+
+/* ─── SECTION HEADERS ─── */
+.section-header{margin-bottom:22px}
+.section-title{font-family:var(--display);font-size:1.55rem;font-weight:800;margin-bottom:4px}
+.section-sub{font-size:.9rem;color:var(--gray);font-weight:600}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:24px}
+
+/* ─── PAYMENT STEP ─── */
+.payment-progress{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:16px}
+.payment-progress .spinner{width:56px;height:56px;border-width:4px}
+.payment-progress h3{font-weight:800;font-size:1.1rem}
+.payment-progress p{color:var(--gray);font-weight:600;font-size:.88rem}
+.payment-success{text-align:center;padding:40px 20px}
+.payment-success .icon{font-size:60px;margin-bottom:14px}
+.payment-success h2{font-weight:900;margin-bottom:8px}
+.payment-success p{color:var(--gray);font-weight:600;margin-bottom:22px}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:860px){
+  .cart-summary{width:100%}
+  .cart-layout{flex-direction:column}
+  .admin-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-banner{padding:22px 20px}
+  .hero-text h1{font-size:1.4rem}
+}
+@media(max-width:600px){
+  .nav-links{display:none}
+  .admin-grid{grid-template-columns:1fr}
+  .auth-card{padding:28px 20px}
+  .step-bar{gap:0}
+  .track-step-label{font-size:.62rem}
+}
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+<div id="root"></div>
+
+<!-- React 18 + Babel from CDN -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef, createContext, useContext } = React;
+
+/* ════════════════════════════════════════════════
+   DATABASE — localStorage simulation
+   ════════════════════════════════════════════════ */
+const DB = {
+  get: (key, def=[]) => { try { return JSON.parse(localStorage.getItem(key)) ?? def; } catch { return def; } },
+  set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
+  init() {
+    if (DB.get('db_seeded', false)) return;
+    DB.set('users', [
+      { id:'u1', name:'Admin User',  email:'admin@pizza.com', password:'admin123', role:'admin',  verified:true  },
+      { id:'u2', name:'John Doe',    email:'test@pizza.com',  password:'test123',  role:'user',   verified:true  },
+    ]);
+    DB.set('pizzas', [
+      { id:'p1', name:'Margherita Classic', desc:'Fresh tomato sauce, mozzarella & basil on crispy crust.', price:299, cat:'veg',    ratings:4.8, ingredients:['Tomato Sauce','Mozzarella','Basil','Olive Oil'], img:'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=500&q=80' },
+      { id:'p2', name:'Pepperoni Feast',    desc:'Loaded with premium pepperoni and mozzarella.', price:449, cat:'non-veg', ratings:4.9, ingredients:['Tomato','Pepperoni','Mozzarella','Oregano'], img:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80' },
+      { id:'p3', name:'BBQ Chicken',        desc:'Smoky BBQ sauce with grilled chicken and red onions.', price:499, cat:'non-veg', ratings:4.7, ingredients:['BBQ Sauce','Chicken','Red Onion','Cheddar'], img:'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=500&q=80' },
+      { id:'p4', name:'Garden Veggie',      desc:'Colorful mix of fresh veggies on herb tomato sauce.', price:349, cat:'veg',    ratings:4.5, ingredients:['Tomato','Bell Peppers','Olives','Mushrooms'], img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&q=80' },
+      { id:'p5', name:'Spicy Paneer',       desc:'Indian-style spiced paneer with tikka masala base.', price:379, cat:'veg',    ratings:4.6, ingredients:['Tikka Sauce','Paneer','Capsicum','Onion'], img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80' },
+      { id:'p6', name:'Four Cheese',        desc:'Mozzarella, cheddar, parmesan & gouda — cheese heaven.', price:529, cat:'veg', ratings:4.9, ingredients:['White Sauce','Mozzarella','Cheddar','Parmesan'], img:'https://images.unsplash.com/photo-1588315029754-2dd089d39a1a?w=500&q=80' },
+    ]);
+    DB.set('inventory', [
+      {id:'i1',name:'Thin Crust',    cat:'base',   stock:150}, {id:'i2',name:'Thick Crust',   cat:'base',   stock:120},
+      {id:'i3',name:'Wheat Crust',   cat:'base',   stock:80},  {id:'i4',name:'Cheese Burst',  cat:'base',   stock:15},
+      {id:'i5',name:'Gluten-Free',   cat:'base',   stock:40},
+      {id:'i6',name:'Classic Tomato',cat:'sauce',  stock:200}, {id:'i7',name:'BBQ Sauce',     cat:'sauce',  stock:150},
+      {id:'i8',name:'White Garlic',  cat:'sauce',  stock:100}, {id:'i9',name:'Tikka Masala',  cat:'sauce',  stock:12},
+      {id:'i10',name:'Pesto Sauce',  cat:'sauce',  stock:70},
+      {id:'i11',name:'Mozzarella',   cat:'cheese', stock:300}, {id:'i12',name:'Cheddar',      cat:'cheese', stock:200},
+      {id:'i13',name:'Parmesan',     cat:'cheese', stock:18},
+      {id:'i14',name:'Onions',       cat:'veggie', stock:250}, {id:'i15',name:'Bell Peppers', cat:'veggie', stock:200},
+      {id:'i16',name:'Mushrooms',    cat:'veggie', stock:180}, {id:'i17',name:'Olives',       cat:'veggie', stock:120},
+      {id:'i18',name:'Corn',         cat:'veggie', stock:160}, {id:'i19',name:'Jalapenos',    cat:'veggie', stock:14},
+      {id:'i20',name:'Pepperoni',    cat:'meat',   stock:200}, {id:'i21',name:'Grilled Chicken',cat:'meat', stock:150},
+      {id:'i22',name:'Bacon',        cat:'meat',   stock:100}, {id:'i23',name:'Sausage',      cat:'meat',   stock:80},
+    ]);
+    DB.set('orders', []);
+    DB.set('db_seeded', true);
+  }
+};
+DB.init();
+
+/* ════════════════════════════════════════════════
+   TOAST
+   ════════════════════════════════════════════════ */
+const toast = {
+  show(msg, type='info', dur=3000) {
+    const el = document.createElement('div');
+    el.className = `toast toast-${type}`;
+    const icons = {success:'✅',error:'❌',info:'ℹ️'};
+    el.innerHTML = `<span>${icons[type]||''}</span><span>${msg}</span>`;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(()=>{ el.style.animation='toastIn .3s ease reverse'; setTimeout(()=>el.remove(),300); }, dur);
+  },
+  success(m,d) { this.show(m,'success',d) },
+  error(m,d)   { this.show(m,'error',d)   },
+  info(m,d)    { this.show(m,'info',d)    }
+};
+
+/* ════════════════════════════════════════════════
+   CONTEXTS
+   ════════════════════════════════════════════════ */
+const AuthCtx  = createContext(null);
+const CartCtx  = createContext(null);
+const RouterCtx = createContext(null);
+
+/* ════════════════════════════════════════════════
+   ROUTER
+   ════════════════════════════════════════════════ */
+const useRouter = () => useContext(RouterCtx);
+
+/* ════════════════════════════════════════════════
+   HELPERS
+   ════════════════════════════════════════════════ */
+const uid = () => Math.random().toString(36).slice(2,10);
+const fmtDate = d => new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+const fmtDateShort = d => new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+
+const STATUS_LIST = ['Order Received','In Kitchen','Out for Delivery','Delivered'];
+const statusStyle = {
+  'Order Received':   {color:'#dd6b20',bg:'#fffaf0',icon:'📋'},
+  'In Kitchen':       {color:'#b7791f',bg:'#fffff0',icon:'👨‍🍳'},
+  'Out for Delivery': {color:'#2b6cb0',bg:'#ebf8ff',icon:'🛵'},
+  'Delivered':        {color:'#276749',bg:'#f0fff4',icon:'✅'},
+  'Cancelled':        {color:'#c53030',bg:'#fff5f5',icon:'❌'},
+};
+
+const BUILDER_OPTIONS = {
+  bases:   ['Thin Crust','Thick Crust','Wheat Crust','Cheese Burst','Gluten-Free'],
+  sauces:  ['Classic Tomato','BBQ Sauce','White Garlic','Tikka Masala','Pesto Sauce'],
+  cheeses: ['Mozzarella','Cheddar','Parmesan','Gouda','Mixed Cheese'],
+  veggies: ['Onions','Bell Peppers','Mushrooms','Olives','Corn','Jalapenos','Spinach','Tomatoes'],
+  meats:   ['None','Pepperoni','Grilled Chicken','Bacon','Sausage'],
+};
+const PRICE_MAP = {
+  bases:   {'Thin Crust':0,'Thick Crust':20,'Wheat Crust':30,'Cheese Burst':60,'Gluten-Free':50},
+  sauces:  {'Classic Tomato':0,'BBQ Sauce':20,'White Garlic':20,'Tikka Masala':25,'Pesto Sauce':30},
+  cheeses: {'Mozzarella':0,'Cheddar':20,'Parmesan':30,'Gouda':35,'Mixed Cheese':25},
+  veggieEach: 10,
+  meats:   {'None':0,'Pepperoni':60,'Grilled Chicken':70,'Bacon':65,'Sausage':55},
+};
+const BASE_CUSTOM_PRICE = 199;
+
+/* ════════════════════════════════════════════════
+   SHARED UI COMPONENTS
+   ════════════════════════════════════════════════ */
+const Spinner = ({sm}) => <div className={sm?'spinner spinner-sm':'spinner'}/>;
+const LoadingBox = ({msg='Loading…'}) => <div className="loading-box"><Spinner/><span>{msg}</span></div>;
+
+const StatusPill = ({status}) => {
+  const s = statusStyle[status] || statusStyle['Order Received'];
+  return <span className="status-pill" style={{background:s.bg,color:s.color}}>{s.icon} {status}</span>;
+};
+
+/* ════════════════════════════════════════════════
+   AUTH PROVIDER
+   ════════════════════════════════════════════════ */
+const AuthProvider = ({children}) => {
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('session')) ?? null; } catch { return null; }
+  });
+
+  const login = (email, password) => {
+    const users = DB.get('users');
+    const found = users.find(u => u.email===email && u.password===password);
+    if (!found) return {ok:false, msg:'Invalid email or password.'};
+    localStorage.setItem('session', JSON.stringify(found));
+    setUser(found);
+    return {ok:true};
+  };
+
+  const register = (name, email, password) => {
+    const users = DB.get('users');
+    if (users.find(u=>u.email===email)) return {ok:false, msg:'Email already registered.'};
+    const newUser = {id:uid(), name, email, password, role:'user', verified:true};
+    DB.set('users', [...users, newUser]);
+    localStorage.setItem('session', JSON.stringify(newUser));
+    setUser(newUser);
+    return {ok:true};
+  };
+
+  const logout = () => { localStorage.removeItem('session'); setUser(null); };
+
+  return <AuthCtx.Provider value={{user, login, register, logout, isAdmin:user?.role==='admin'}}>
+    {children}
+  </AuthCtx.Provider>;
+};
+const useAuth = () => useContext(AuthCtx);
+
+/* ════════════════════════════════════════════════
+   CART PROVIDER
+   ════════════════════════════════════════════════ */
+const CartProvider = ({children}) => {
+  const {user} = useAuth();
+  const cartKey = user ? `cart_${user.id}` : 'cart_guest';
+  const [cart, setCartState] = useState(() => DB.get(cartKey));
+
+  useEffect(()=>{ if(user) setCartState(DB.get(`cart_${user.id}`)); else setCartState([]); }, [user?.id]);
+
+  const save = items => { setCartState(items); DB.set(cartKey, items); };
+
+  const addToCart = item => {
+    const cur = DB.get(cartKey);
+    if (!item.isCustom && item.pizzaId) {
+      const idx = cur.findIndex(i=>i.pizzaId===item.pizzaId && !i.isCustom);
+      if (idx>=0) { cur[idx].qty += 1; save([...cur]); return; }
+    }
+    save([...cur, {...item, cartId: uid(), qty: item.qty||1}]);
+  };
+
+  const updateQty = (cartId, qty) => {
+    if (qty < 1) { removeItem(cartId); return; }
+    save(DB.get(cartKey).map(i=>i.cartId===cartId?{...i,qty}:i));
+  };
+
+  const removeItem = cartId => save(DB.get(cartKey).filter(i=>i.cartId!==cartId));
+  const clearCart = () => save([]);
+
+  const count = cart.reduce((s,i)=>s+i.qty,0);
+  const total = cart.reduce((s,i)=>s+(i.price*i.qty),0);
+
+  return <CartCtx.Provider value={{cart,count,total,addToCart,updateQty,removeItem,clearCart}}>
+    {children}
+  </CartCtx.Provider>;
+};
+const useCart = () => useContext(CartCtx);
+
+/* ════════════════════════════════════════════════
+   NAVBAR
+   ════════════════════════════════════════════════ */
+const Navbar = ({page, nav}) => {
+  const {user, logout, isAdmin} = useAuth();
+  const {count} = useCart();
+  if (!user) return null;
+
+  const doLogout = () => { logout(); toast.success('Logged out!'); nav('login'); };
+
+  return <nav className="navbar">
+    <div className="nav-inner">
+      <div className="nav-logo" onClick={()=>nav(isAdmin?'admin':'dashboard')} style={{cursor:'pointer'}}>
+        🍕 PizzaApp
+      </div>
+      <div className="nav-links">
+        {isAdmin ? <>
+          <button className={`nav-link${page==='admin'?' active':''}`} onClick={()=>nav('admin')}>Dashboard</button>
+          <button className={`nav-link${page==='admin-orders'?' active':''}`} onClick={()=>nav('admin-orders')}>Orders</button>
+          <button className={`nav-link${page==='admin-inventory'?' active':''}`} onClick={()=>nav('admin-inventory')}>Inventory</button>
+          <button className={`nav-link${page==='admin-pizzas'?' active':''}`} onClick={()=>nav('admin-pizzas')}>Pizzas</button>
+        </> : <>
+          <button className={`nav-link${page==='dashboard'?' active':''}`} onClick={()=>nav('dashboard')}>Menu</button>
+          <button className={`nav-link${page==='builder'?' active':''}`} onClick={()=>nav('builder')}>Build Pizza</button>
+          <button className={`nav-link${page==='orders'?' active':''}`} onClick={()=>nav('orders')}>My Orders</button>
+        </>}
+      </div>
+      <div className="nav-right">
+        {!isAdmin && <button className="nav-cart" onClick={()=>nav('cart')}>
+          🛒 Cart {count>0 && <span className="cart-badge">{count}</span>}
+        </button>}
+        <span className="nav-user">
+          👤 {user.name.split(' ')[0]}
+          {isAdmin && <span className="nav-role">Admin</span>}
+        </span>
+        <button className="btn btn-ghost btn-sm" onClick={doLogout}>Logout</button>
+      </div>
+    </div>
+  </nav>;
+};
+
+/* ════════════════════════════════════════════════
+   PAGE: LOGIN
+   ════════════════════════════════════════════════ */
+const LoginPage = ({nav}) => {
+  const {login} = useAuth();
+  const [form, setForm] = useState({email:'',password:''});
+  const [err,  setErr]  = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const fill = (email, password) => setForm({email, password});
+
+  const submit = e => {
+    e.preventDefault(); setErr(''); setBusy(true);
+    setTimeout(()=>{
+      const r = login(form.email, form.password);
+      setBusy(false);
+      if (r.ok) { toast.success('Welcome back! 🍕'); }
+      else setErr(r.msg);
+    }, 600);
+  };
+
+  return <div className="auth-page">
+    <div className="auth-card">
+      <div className="auth-logo">🍕 PizzaApp</div>
+      <div className="auth-sub">Sign in to your account</div>
+      {err && <div className="alert alert-error">{err}</div>}
+      <form onSubmit={submit}>
+        <div className="form-group">
+          <label className="form-label">Email</label>
+          <input className="form-control" type="email" placeholder="you@example.com"
+            value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required/>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Password</label>
+          <input className="form-control" type="password" placeholder="••••••••"
+            value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required/>
+        </div>
+        <button className="btn btn-primary btn-block btn-lg" disabled={busy}>
+          {busy ? <Spinner sm/> : 'Sign In'}
+        </button>
+      </form>
+      <div className="demo-box">
+        <p>Quick demo login:</p>
+        <div className="demo-btns">
+          <button className="demo-btn" onClick={()=>fill('test@pizza.com','test123')}>👤 User</button>
+          <button className="demo-btn" onClick={()=>fill('admin@pizza.com','admin123')}>🔑 Admin</button>
+        </div>
+      </div>
+      <div className="auth-footer">
+        No account? <a href="#" onClick={e=>{e.preventDefault();nav('register')}}>Sign up free</a>
+      </div>
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   PAGE: REGISTER
+   ════════════════════════════════════════════════ */
+const RegisterPage = ({nav}) => {
+  const {register} = useAuth();
+  const [form, setForm] = useState({name:'',email:'',password:'',confirm:''});
+  const [err,  setErr]  = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const submit = e => {
+    e.preventDefault(); setErr('');
+    if (form.password !== form.confirm) return setErr('Passwords do not match.');
+    if (form.password.length < 6) return setErr('Password must be at least 6 characters.');
+    setBusy(true);
+    setTimeout(()=>{
+      const r = register(form.name, form.email, form.password);
+      setBusy(false);
+      if (r.ok) toast.success('Account created! 🎉');
+      else setErr(r.msg);
+    }, 600);
+  };
+
+  const fields = [
+    {key:'name',label:'Full Name',type:'text',ph:'John Doe'},
+    {key:'email',label:'Email',type:'email',ph:'you@example.com'},
+    {key:'password',label:'Password',type:'password',ph:'••••••••'},
+    {key:'confirm',label:'Confirm Password',type:'password',ph:'••••••••'},
+  ];
+
+  return <div className="auth-page">
+    <div className="auth-card">
+      <div className="auth-logo">🍕 PizzaApp</div>
+      <div className="auth-sub">Create your account</div>
+      {err && <div className="alert alert-error">{err}</div>}
+      <form onSubmit={submit}>
+        {fields.map(f=><div className="form-group" key={f.key}>
+          <label className="form-label">{f.label}</label>
+          <input className="form-control" type={f.type} placeholder={f.ph}
+            value={form[f.key]} onChange={e=>setForm({...form,[f.key]:e.target.value})} required/>
+        </div>)}
+        <button className="btn btn-primary btn-block btn-lg" disabled={busy}>
+          {busy?<Spinner sm/>:'Create Account'}
+        </button>
+      </form>
+      <div className="auth-footer">
+        Have an account? <a href="#" onClick={e=>{e.preventDefault();nav('login')}}>Sign in</a>
+      </div>
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   PAGE: DASHBOARD
+   ════════════════════════════════════════════════ */
+const PizzaCard = ({pizza, onAdd}) => {
+  const [busy, setBusy] = useState(false);
+  const handleAdd = async () => {
+    setBusy(true);
+    setTimeout(()=>{
+      onAdd(pizza);
+      setBusy(false);
+      toast.success(`${pizza.name} added to cart! 🍕`);
+    }, 400);
+  };
+  return <div className="pizza-card">
+    <div className="pizza-img-wrap">
+      <img src={pizza.img} alt={pizza.name} onError={e=>e.target.src='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80'}/>
+      <span className={`pizza-cat-badge badge ${pizza.cat==='veg'?'badge-green':'badge-red'}`}>
+        {pizza.cat==='veg'?'🟢 Veg':'🔴 Non-Veg'}
+      </span>
+      <span className="pizza-rating">⭐ {pizza.ratings}</span>
+    </div>
+    <div className="pizza-body">
+      <div className="pizza-name">{pizza.name}</div>
+      <div className="pizza-desc">{pizza.desc}</div>
+      <div className="pizza-chips">
+        {pizza.ingredients.slice(0,3).map(i=><span key={i} className="pizza-chip">{i}</span>)}
+        {pizza.ingredients.length>3 && <span className="pizza-chip">+{pizza.ingredients.length-3}</span>}
+      </div>
+      <div className="pizza-footer">
+        <span className="pizza-price">₹{pizza.price}</span>
+        <button className="btn btn-primary btn-sm" onClick={handleAdd} disabled={busy}>
+          {busy?<Spinner sm/>:'+ Add'}
+        </button>
+      </div>
+    </div>
+  </div>;
+};
+
+const DashboardPage = ({nav}) => {
+  const {user} = useAuth();
+  const {addToCart} = useCart();
+  const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const pizzas = DB.get('pizzas');
+
+  const filtered = pizzas.filter(p=>{
+    const m = filter==='all'||p.cat===filter;
+    const s = p.name.toLowerCase().includes(search.toLowerCase());
+    return m && s;
+  });
+
+  const handleAdd = pizza => addToCart({
+    pizzaId:pizza.id, name:pizza.name, price:pizza.price, img:pizza.img, isCustom:false
+  });
+
+  return <div className="page">
+    <div className="container">
+      <div className="hero-banner">
+        <div className="hero-text">
+          <h1>Hi {user?.name?.split(' ')[0]}! 👋</h1>
+          <p>What are you craving today?</p>
+          <div className="hero-stats">
+            <div className="hero-stat"><div className="val">6</div><div className="lbl">Pizzas</div></div>
+            <div className="hero-stat"><div className="val">30</div><div className="lbl">Min Delivery</div></div>
+            <div className="hero-stat"><div className="val">⭐4.8</div><div className="lbl">Rating</div></div>
+          </div>
+        </div>
+        <button className="btn btn-xl" style={{background:'#fff',color:'var(--red)',fontWeight:900}} onClick={()=>nav('builder')}>
+          🍕 Build Your Own
+        </button>
+      </div>
+
+      <div className="filter-bar">
+        <div className="filter-btns">
+          {[['all','🍕 All'],['veg','🟢 Veg'],['non-veg','🔴 Non-Veg']].map(([v,l])=>
+            <button key={v} className={`btn btn-sm ${filter===v?'btn-primary':'btn-ghost'}`} onClick={()=>setFilter(v)}>{l}</button>
+          )}
+        </div>
+        <input className="form-control" style={{maxWidth:230}} placeholder="🔍 Search pizzas…"
+          value={search} onChange={e=>setSearch(e.target.value)}/>
+      </div>
+
+      {filtered.length===0
+        ? <div className="empty"><div className="empty-icon">🍕</div><h3>No pizzas found</h3><p>Try a different filter.</p></div>
+        : <div className="pizza-grid">{filtered.map(p=><PizzaCard key={p.id} pizza={p} onAdd={handleAdd}/>)}</div>
+      }
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   PAGE: PIZZA BUILDER
+   ════════════════════════════════════════════════ */
+const STEPS = ['Base','Sauce','Cheese','Veggies','Meat','Review'];
+
+const PizzaBuilderPage = ({nav}) => {
+  const {addToCart} = useCart();
+  const [step, setStep] = useState(0);
+  const [cfg, setCfg] = useState({base:'',sauce:'',cheese:'',veggies:[],meat:'None'});
+  const [busy, setBusy] = useState(false);
+
+  const price = (() => {
+    let p = BASE_CUSTOM_PRICE;
+    p += PRICE_MAP.bases[cfg.base]||0;
+    p += PRICE_MAP.sauces[cfg.sauce]||0;
+    p += PRICE_MAP.cheeses[cfg.cheese]||0;
+    p += cfg.veggies.length * PRICE_MAP.veggieEach;
+    p += PRICE_MAP.meats[cfg.meat]||0;
+    return p;
+  })();
+
+  const canNext = () => {
+    if(step===0) return !!cfg.base;
+    if(step===1) return !!cfg.sauce;
+    if(step===2) return !!cfg.cheese;
+    return true;
+  };
+
+  const toggleVeg = v => setCfg(c=>({...c, veggies: c.veggies.includes(v)?c.veggies.filter(x=>x!==v):[...c.veggies,v]}));
+
+  const handleAdd = () => {
+    setBusy(true);
+    setTimeout(()=>{
+      addToCart({
+        name:`Custom Pizza (${cfg.base})`,
+        price,
+        isCustom:true,
+        customConfig:{...cfg},
+      });
+      toast.success('Custom pizza added to cart! 🍕');
+      nav('cart');
+    }, 600);
+  };
+
+  const OptionGrid = ({items,sel,onSel,priceFn}) => <div className="option-grid">
+    {items.map(item=><button key={item} className={`option-btn${sel===item?' selected':''}`} onClick={()=>onSel(item)}>
+      <div className="opt-name">{sel===item?'✓ ':''}{item}</div>
+      <div className="opt-price">{priceFn(item)}</div>
+    </button>)}
+  </div>;
+
+  return <div className="page">
+    <div className="container">
+      <div className="builder-wrap">
+        <div className="section-header">
+          <div className="section-title">🍕 Build Your Pizza</div>
+          <div className="section-sub">Craft your perfect pizza — layer by layer.</div>
+        </div>
+
+        {/* Step bar */}
+        <div className="step-bar">
+          {STEPS.map((s,i)=><React.Fragment key={s}>
+            <div className="step-item">
+              <div className={`step-dot ${i<step?'done':i===step?'active':'pending'}`}>
+                {i<step?'✓':i+1}
+              </div>
+              <span className="step-label" style={{color:i<=step?'var(--dark)':'var(--lgray)'}}>{s}</span>
+            </div>
+            {i<STEPS.length-1 && <div className={`step-line ${i<step?'done':'pending'}`} style={{flex:1,height:2,margin:'0 2px',marginBottom:20,background:i<step?'#38a169':'var(--border)'}}/>}
+          </React.Fragment>)}
+        </div>
+
+        {/* Price bar */}
+        <div className="price-bar">
+          <span style={{color:'var(--gray)',fontWeight:700,fontSize:'.88rem'}}>Current total:</span>
+          <span style={{fontFamily:'var(--display)',fontSize:'1.35rem',fontWeight:800,color:'var(--red)'}}>₹{price}</span>
+        </div>
+
+        {/* Step content */}
+        <div className="card">
+          <div className="card-body">
+            {step===0 && <>
+              <h3 style={{fontWeight:800,marginBottom:4}}>Choose Your Base 🫓</h3>
+              <p style={{color:'var(--gray)',fontSize:'.85rem',marginBottom:18,fontWeight:600}}>The foundation of your pizza.</p>
+              <OptionGrid items={BUILDER_OPTIONS.bases} sel={cfg.base} onSel={v=>setCfg({...cfg,base:v})}
+                priceFn={v=>PRICE_MAP.bases[v]?`+₹${PRICE_MAP.bases[v]}`:'Free'}/>
+            </>}
+            {step===1 && <>
+              <h3 style={{fontWeight:800,marginBottom:4}}>Choose Your Sauce 🍅</h3>
+              <p style={{color:'var(--gray)',fontSize:'.85rem',marginBottom:18,fontWeight:600}}>Pick a flavour base.</p>
+              <OptionGrid items={BUILDER_OPTIONS.sauces} sel={cfg.sauce} onSel={v=>setCfg({...cfg,sauce:v})}
+                priceFn={v=>PRICE_MAP.sauces[v]?`+₹${PRICE_MAP.sauces[v]}`:'Free'}/>
+            </>}
+            {step===2 && <>
+              <h3 style={{fontWeight:800,marginBottom:4}}>Choose Your Cheese 🧀</h3>
+              <p style={{color:'var(--gray)',fontSize:'.85rem',marginBottom:18,fontWeight:600}}>Melt it good.</p>
+              <OptionGrid items={BUILDER_OPTIONS.cheeses} sel={cfg.cheese} onSel={v=>setCfg({...cfg,cheese:v})}
+                priceFn={v=>PRICE_MAP.cheeses[v]?`+₹${PRICE_MAP.cheeses[v]}`:'Free'}/>
+            </>}
+            {step===3 && <>
+              <h3 style={{fontWeight:800,marginBottom:4}}>Add Veggies 🥦</h3>
+              <p style={{color:'var(--gray)',fontSize:'.85rem',marginBottom:18,fontWeight:600}}>
+                Select any — ₹10 each ({cfg.veggies.length} selected)
+              </p>
+              <div className="multi-grid">
+                {BUILDER_OPTIONS.veggies.map(v=><button key={v} className={`multi-btn${cfg.veggies.includes(v)?' selected':''}`}
+                  onClick={()=>toggleVeg(v)}>
+                  {v}
+                  {cfg.veggies.includes(v) && <span className="multi-check">✓</span>}
+                </button>)}
+              </div>
+            </>}
+            {step===4 && <>
+              <h3 style={{fontWeight:800,marginBottom:4}}>Add Meat 🥩</h3>
+              <p style={{color:'var(--gray)',fontSize:'.85rem',marginBottom:18,fontWeight:600}}>Optional — choose 'None' to keep it veg.</p>
+              <OptionGrid items={BUILDER_OPTIONS.meats} sel={cfg.meat} onSel={v=>setCfg({...cfg,meat:v})}
+                priceFn={v=>PRICE_MAP.meats[v]?`+₹${PRICE_MAP.meats[v]}`:'Free'}/>
+            </>}
+            {step===5 && <>
+              <h3 style={{fontWeight:800,marginBottom:4}}>Review Your Pizza 👀</h3>
+              <p style={{color:'var(--gray)',fontSize:'.85rem',marginBottom:18,fontWeight:600}}>Looks amazing! Confirm and add to cart.</p>
+              <table className="review-table">
+                <tbody>
+                  {[['🫓 Base',cfg.base],['🍅 Sauce',cfg.sauce],['🧀 Cheese',cfg.cheese],
+                    ['🥦 Veggies',cfg.veggies.length?cfg.veggies.join(', '):'None'],['🥩 Meat',cfg.meat]]
+                    .map(([l,v])=><tr key={l}><td>{l}</td><td>{v||'—'}</td></tr>)}
+                </tbody>
+              </table>
+              <div className="review-total">
+                <span className="label">💰 Total Price</span>
+                <span className="price">₹{price}</span>
+              </div>
+            </>}
+          </div>
+        </div>
+
+        <div className="builder-nav">
+          {step>0 && <button className="btn btn-ghost btn-lg" onClick={()=>setStep(s=>s-1)}>← Back</button>}
+          <div style={{flex:1}}/>
+          {step<5
+            ? <button className="btn btn-primary btn-lg" onClick={()=>setStep(s=>s+1)} disabled={!canNext()}>Next →</button>
+            : <button className="btn btn-primary btn-lg" onClick={handleAdd} disabled={busy}>
+                {busy?<Spinner sm/>:'🛒 Add to Cart'}
+              </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   PAGE: CART
+   ════════════════════════════════════════════════ */
+const CartPage = ({nav}) => {
+  const {user} = useAuth();
+  const {cart, total, updateQty, removeItem, clearCart} = useCart();
+  const [step, setStep] = useState('cart'); // cart | address | paying | success
+  const [addr, setAddr] = useState({street:'',city:'',state:'',pincode:''});
+  const [newOrderId, setNewOrderId] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  if (cart.length===0 && step==='cart') return <div className="page">
+    <div className="container">
+      <div className="empty" style={{paddingTop:80}}>
+        <div className="empty-icon">🛒</div>
+        <h3>Your cart is empty</h3>
+        <p style={{marginBottom:20}}>Add some delicious pizzas to get started!</p>
+        <button className="btn btn-primary btn-lg" onClick={()=>nav('dashboard')}>Browse Menu</button>
+      </div>
+    </div>
+  </div>;
+
+  const placeOrder = () => {
+    const {street,city,state,pincode} = addr;
+    if(!street||!city||!state||!pincode) return toast.error('Please fill all address fields.');
+    setBusy(true); setStep('paying');
+    // Simulate Razorpay payment
+    setTimeout(()=>{
+      const orderId = uid();
+      const orders = DB.get('orders');
+      DB.set('orders', [...orders, {
+        id: orderId,
+        userId: user.id,
+        userName: user.name,
+        items: cart.map(i=>({...i})),
+        total,
+        address: addr,
+        status: 'Order Received',
+        statusHistory: [{status:'Order Received',at:Date.now()}],
+        paymentId: 'pay_demo_'+uid(),
+        createdAt: Date.now(),
+      }]);
+      clearCart();
+      setNewOrderId(orderId);
+      setBusy(false);
+      setStep('success');
+    }, 2200);
+  };
+
+  return <div className="page">
+    <div className="container">
+      {step==='paying' && <div className="payment-progress">
+        <div className="spinner" style={{width:60,height:60,borderWidth:4}}/>
+        <h3>Processing Payment…</h3>
+        <p>Connecting to Razorpay (demo mode)</p>
+      </div>}
+
+      {step==='success' && <div className="payment-success">
+        <div className="icon">🎉</div>
+        <h2>Order Placed Successfully!</h2>
+        <p>Your pizza is being prepared. Track it live below!</p>
+        <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
+          <button className="btn btn-primary btn-lg" onClick={()=>nav('order-detail',newOrderId)}>Track Order 🛵</button>
+          <button className="btn btn-ghost btn-lg" onClick={()=>nav('orders')}>All Orders</button>
+        </div>
+      </div>}
+
+      {(step==='cart'||step==='address') && <>
+        <div className="section-header">
+          <div className="section-title">{step==='cart'?'🛒 Your Cart':'📦 Delivery Address'}</div>
+          <div className="section-sub">{step==='cart'?`${cart.length} item(s)`:'Where should we deliver?'}</div>
+        </div>
+
+        <div className="cart-layout">
+          <div className="cart-items">
+            {step==='cart' && cart.map(item=><div key={item.cartId} className="cart-item">
+              <div className="cart-item-info">
+                <div className="cart-item-name">{item.name}</div>
+                {item.isCustom && item.customConfig && <div className="cart-item-sub">
+                  {item.customConfig.base} · {item.customConfig.sauce} · {item.customConfig.cheese}
+                  {item.customConfig.veggies?.length>0 && ` · ${item.customConfig.veggies.join(', ')}`}
+                  {item.customConfig.meat && item.customConfig.meat!=='None' && ` · ${item.customConfig.meat}`}
+                </div>}
+                <div className="cart-item-price">₹{item.price}</div>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:8}}>
+                <div className="qty-ctrl">
+                  <button className="qty-btn" onClick={()=>updateQty(item.cartId,item.qty-1)}>−</button>
+                  <span className="qty-val">{item.qty}</span>
+                  <button className="qty-btn" onClick={()=>updateQty(item.cartId,item.qty+1)}>+</button>
+                </div>
+                <span style={{fontWeight:800}}>₹{item.price*item.qty}</span>
+                <button className="remove-btn" onClick={()=>removeItem(item.cartId)}>🗑</button>
+              </div>
+            </div>)}
+
+            {step==='address' && <div className="address-card">
+              <div className="address-title">📍 Delivery Details</div>
+              <div className="form-group">
+                <label className="form-label">Street Address</label>
+                <input className="form-control" placeholder="123 Main Street" value={addr.street}
+                  onChange={e=>setAddr({...addr,street:e.target.value})}/>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">City</label>
+                  <input className="form-control" placeholder="Mumbai" value={addr.city}
+                    onChange={e=>setAddr({...addr,city:e.target.value})}/>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">State</label>
+                  <input className="form-control" placeholder="Maharashtra" value={addr.state}
+                    onChange={e=>setAddr({...addr,state:e.target.value})}/>
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Pincode</label>
+                <input className="form-control" placeholder="400001" value={addr.pincode}
+                  onChange={e=>setAddr({...addr,pincode:e.target.value})}/>
+              </div>
+            </div>}
+          </div>
+
+          <div className="cart-summary">
+            <div className="summary-card">
+              <div className="summary-title">Order Summary</div>
+              {cart.map(i=><div key={i.cartId} className="summary-row">
+                <span className="lbl">{i.name} ×{i.qty}</span>
+                <span className="val">₹{i.price*i.qty}</span>
+              </div>)}
+              <hr className="summary-divider"/>
+              <div className="summary-row">
+                <span className="lbl">Subtotal</span><span className="val">₹{total}</span>
+              </div>
+              <div className="summary-row">
+                <span className="lbl">Delivery</span><span className="val" style={{color:'var(--green)'}}>FREE</span>
+              </div>
+              <hr className="summary-divider"/>
+              <div className="summary-row summary-total">
+                <span className="lbl">Total</span><span className="val">₹{total}</span>
+              </div>
+              {step==='cart' && <button className="btn btn-primary btn-block btn-lg" style={{marginTop:14}}
+                onClick={()=>setStep('address')}>Proceed to Checkout →</button>}
+              {step==='address' && <>
+                <button className="btn btn-primary btn-block btn-lg" style={{marginTop:14,background:'#276749'}}
+                  onClick={placeOrder}>💳 Pay ₹{total} (Demo)</button>
+                <button className="btn btn-ghost btn-block btn-sm" style={{marginTop:8}}
+                  onClick={()=>setStep('cart')}>← Edit Cart</button>
+              </>}
+              <div className="secure-note" style={{marginTop:10}}>🔒 Secure demo payment · No real charge</div>
+            </div>
+          </div>
+        </div>
+      </>}
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   PAGE: ORDERS
+   ════════════════════════════════════════════════ */
+const OrdersPage = ({nav}) => {
+  const {user} = useAuth();
+  const orders = DB.get('orders').filter(o=>o.userId===user.id).sort((a,b)=>b.createdAt-a.createdAt);
+
+  if(orders.length===0) return <div className="page">
+    <div className="container">
+      <div className="empty" style={{paddingTop:60}}>
+        <div className="empty-icon">📭</div>
+        <h3>No orders yet</h3>
+        <p style={{marginBottom:20}}>Place your first order!</p>
+        <button className="btn btn-primary btn-lg" onClick={()=>nav('dashboard')}>Order Now</button>
+      </div>
+    </div>
+  </div>;
+
+  return <div className="page">
+    <div className="container">
+      <div className="section-header">
+        <div className="section-title">📦 My Orders</div>
+        <div className="section-sub">Track your pizza deliveries in real-time.</div>
+      </div>
+      <div className="order-list">
+        {orders.map(o=>{
+          const s = statusStyle[o.status]||statusStyle['Order Received'];
+          return <div key={o.id} className="order-card" onClick={()=>nav('order-detail',o.id)}>
+            <div className="order-header">
+              <div>
+                <div className="order-id">Order #{o.id.slice(-6).toUpperCase()}</div>
+                <div className="order-date">{fmtDate(o.createdAt)}</div>
+              </div>
+              <StatusPill status={o.status}/>
+            </div>
+            <div className="order-items-text">{o.items.map(i=>`${i.name} ×${i.qty}`).join(' • ')}</div>
+            <div className="order-total">₹{o.total}</div>
+          </div>;
+        })}
+      </div>
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   PAGE: ORDER DETAIL (Real-time polling)
+   ════════════════════════════════════════════════ */
+const OrderDetailPage = ({nav, orderId}) => {
+  const [order, setOrder] = useState(null);
+  const timerRef = useRef(null);
+
+  const load = () => {
+    const orders = DB.get('orders');
+    const found  = orders.find(o=>o.id===orderId);
+    if(found) setOrder({...found});
+  };
+
+  useEffect(()=>{
+    load();
+    // Auto-advance status in demo after each load (simulate kitchen processing)
+    timerRef.current = setInterval(()=>{ load(); }, 3000);
+    return ()=>clearInterval(timerRef.current);
+  },[orderId]);
+
+  if(!order) return <LoadingBox msg="Loading order…"/>;
+
+  const stIdx = STATUS_LIST.indexOf(order.status);
+  const isCancelled = order.status==='Cancelled';
+  const pct = isCancelled ? 0 : (stIdx/(STATUS_LIST.length-1))*100;
+  const ss = statusStyle[order.status]||statusStyle['Order Received'];
+
+  return <div className="page">
+    <div className="container">
+      <div className="order-detail-wrap">
+        <div style={{marginBottom:18}}>
+          <button className="btn btn-ghost btn-sm" onClick={()=>nav('orders')}>← Back to Orders</button>
+        </div>
+        <div className="section-header">
+          <div className="section-title">Order #{order.id.slice(-6).toUpperCase()}</div>
+          <div className="section-sub">Placed {fmtDate(order.createdAt)}</div>
+        </div>
+
+        {/* Tracking card */}
+        {!isCancelled && <div className="tracking-card">
+          <div className="tracking-title">
+            🔴 Live Tracking <span className="live-dot"/>
+          </div>
+          <p style={{fontSize:'.82rem',color:'var(--gray)',fontWeight:600,marginBottom:0}}>
+            Updates automatically every few seconds in this demo.
+          </p>
+
+          <div className="track-steps">
+            <div className="track-line-bg"/>
+            <div className="track-line-fill" style={{width:`calc(${pct}% - 48px + ${pct===0?'0px':'24px'})`}}/>
+            {STATUS_LIST.map((s,i)=>{
+              const done   = i < stIdx;
+              const active = i === stIdx;
+              const si     = statusStyle[s];
+              return <div key={s} className="track-step">
+                <div className={`track-dot ${done?'done':active?'active':'pending'}`}>
+                  {done?'✓':si.icon}
+                </div>
+                <div className="track-step-label" style={{color:done?'#276749':active?si.color:'var(--lgray)'}}>
+                  {s}
+                </div>
+              </div>;
+            })}
+          </div>
+
+          <div className="status-message" style={{background:ss.bg,borderColor:ss.color,color:ss.color}}>
+            {ss.icon} {{
+              'Order Received':   'We received your order!',
+              'In Kitchen':       'Our chefs are crafting your pizza 🍕',
+              'Out for Delivery': 'Your pizza is on the way! 🛵',
+              'Delivered':        'Delivered! Enjoy your meal 🎉',
+            }[order.status] || order.status}
+          </div>
+        </div>}
+
+        {/* Items */}
+        <div className="order-items-card">
+          <div className="order-items-title">🍕 Order Items</div>
+          {order.items.map((item,i)=><div key={i} className="oi-row">
+            <div>
+              <div className="oi-name">{item.name} ×{item.qty}</div>
+              {item.isCustom && item.customConfig && <div style={{fontSize:'.75rem',color:'var(--gray)',marginTop:2}}>
+                Custom: {item.customConfig.base} · {item.customConfig.sauce}
+              </div>}
+            </div>
+            <div className="oi-price">₹{item.price*item.qty}</div>
+          </div>)}
+          <div className="oi-total-row">
+            <span style={{fontWeight:800}}>Total</span>
+            <span style={{fontWeight:900,color:'var(--red)',fontSize:'1.05rem'}}>₹{order.total}</span>
+          </div>
+        </div>
+
+        {/* Address */}
+        <div className="order-address-card">
+          <div className="order-items-title">📍 Delivery Address</div>
+          <p style={{color:'var(--dark2)',lineHeight:1.8,fontWeight:600}}>
+            {order.address?.street},<br/>
+            {order.address?.city}, {order.address?.state} — {order.address?.pincode}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   ADMIN: DASHBOARD
+   ════════════════════════════════════════════════ */
+const AdminDashboardPage = ({nav}) => {
+  const orders    = DB.get('orders');
+  const users     = DB.get('users').filter(u=>u.role==='user');
+  const inventory = DB.get('inventory');
+  const lowStock  = inventory.filter(i=>i.stock<20);
+  const pending   = orders.filter(o=>['Order Received','In Kitchen','Out for Delivery'].includes(o.status));
+  const delivered = orders.filter(o=>o.status==='Delivered');
+  const revenue   = orders.filter(o=>o.status!=='Cancelled').reduce((s,o)=>s+o.total,0);
+
+  const stats = [
+    {label:'Total Orders',  val:orders.length,    icon:'📦', color:'#e53e3e'},
+    {label:'Pending',       val:pending.length,   icon:'⏳', color:'#dd6b20'},
+    {label:'Delivered',     val:delivered.length, icon:'✅', color:'#38a169'},
+    {label:'Total Users',   val:users.length,     icon:'👥', color:'#3182ce'},
+    {label:'Total Revenue', val:`₹${revenue}`,    icon:'💰', color:'#805ad5'},
+    {label:'Low Stock',     val:lowStock.length,  icon:'⚠️', color:'#d69e2e'},
+  ];
+
+  const recent = [...orders].sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
+
+  return <div className="page">
+    <div className="container">
+      <div className="section-header">
+        <div className="section-title">🍕 Admin Dashboard</div>
+        <div className="section-sub">Real-time overview of your pizza operations.</div>
+      </div>
+
+      <div className="admin-grid">
+        {stats.map(s=><div key={s.label} className="stat-card" style={{borderTopColor:s.color}}>
+          <div className="stat-label">{s.label}</div>
+          <div className="stat-val">{s.val} <span className="stat-icon">{s.icon}</span></div>
+        </div>)}
+      </div>
+
+      <div className="quick-links">
+        <button className="btn btn-primary" onClick={()=>nav('admin-orders')}>📋 Manage Orders</button>
+        <button className="btn btn-secondary" onClick={()=>nav('admin-inventory')}>📦 Inventory</button>
+        <button className="btn btn-outline" onClick={()=>nav('admin-pizzas')}>🍕 Manage Pizzas</button>
+      </div>
+
+      <div className="admin-table-card">
+        <div className="admin-table-header">
+          <span className="admin-table-title">Recent Orders</span>
+          <button className="btn btn-ghost btn-sm" onClick={()=>nav('admin-orders')}>View all →</button>
+        </div>
+        <div style={{overflowX:'auto'}}>
+          <table>
+            <thead><tr>
+              {['Order ID','Customer','Items','Total','Status','Date'].map(h=><th key={h}>{h}</th>)}
+            </tr></thead>
+            <tbody>
+              {recent.map(o=><tr key={o.id}>
+                <td style={{fontWeight:800,color:'var(--red)'}}>#{o.id.slice(-6).toUpperCase()}</td>
+                <td>{o.userName}</td>
+                <td>{o.items.length} item(s)</td>
+                <td style={{fontWeight:700}}>₹{o.total}</td>
+                <td><StatusPill status={o.status}/></td>
+                <td style={{color:'var(--gray)'}}>{fmtDateShort(o.createdAt)}</td>
+              </tr>)}
+              {recent.length===0 && <tr><td colSpan={6} style={{textAlign:'center',padding:32,color:'var(--gray)'}}>No orders yet.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   ADMIN: ORDERS
+   ════════════════════════════════════════════════ */
+const AdminOrdersPage = () => {
+  const [orders, setOrders] = useState(DB.get('orders').sort((a,b)=>b.createdAt-a.createdAt));
+  const [filter, setFilter] = useState('');
+  const [updating, setUpdating] = useState(null);
+
+  const reload = () => setOrders(DB.get('orders').sort((a,b)=>b.createdAt-a.createdAt));
+
+  const changeStatus = (id, status) => {
+    setUpdating(id);
+    setTimeout(()=>{
+      const all = DB.get('orders').map(o=>o.id===id?{...o,status,statusHistory:[...o.statusHistory,{status,at:Date.now()}]}:o);
+      DB.set('orders',all);
+      reload();
+      setUpdating(null);
+      toast.success(`Status updated to "${status}"`);
+    }, 500);
+  };
+
+  const filtered = filter ? orders.filter(o=>o.status===filter) : orders;
+
+  return <div className="page">
+    <div className="container">
+      <div className="section-header">
+        <div className="section-title">📋 All Orders</div>
+        <div className="section-sub">Update statuses — users see changes instantly.</div>
+      </div>
+
+      <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:20}}>
+        <button className={`btn btn-sm ${filter===''?'btn-primary':'btn-ghost'}`} onClick={()=>setFilter('')}>All</button>
+        {STATUS_LIST.concat(['Cancelled']).map(s=>
+          <button key={s} className={`btn btn-sm ${filter===s?'btn-primary':'btn-ghost'}`} onClick={()=>setFilter(s)}>{s}</button>)}
+      </div>
+
+      {filtered.length===0
+        ? <div className="empty"><div className="empty-icon">📭</div><h3>No orders found</h3></div>
+        : <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          {filtered.map(o=><div key={o.id} className="card" style={{padding:'18px 22px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
+              <div style={{flex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6,flexWrap:'wrap'}}>
+                  <span style={{fontWeight:900}}>#{o.id.slice(-8).toUpperCase()}</span>
+                  <span className="badge badge-blue">{o.userName}</span>
+                  <span style={{fontSize:'.78rem',color:'var(--gray)',fontWeight:600}}>{fmtDate(o.createdAt)}</span>
+                </div>
+                <div style={{fontSize:'.83rem',color:'var(--gray)',marginBottom:4,fontWeight:600}}>
+                  {o.items.map(i=>`${i.name} ×${i.qty}`).join(' · ')}
+                </div>
+                <div style={{fontSize:'.8rem',color:'var(--gray)',fontWeight:600}}>
+                  📍 {o.address?.city}, {o.address?.state}
+                </div>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:8}}>
+                <span style={{fontWeight:900,fontSize:'1.05rem',color:'var(--red)'}}>₹{o.total}</span>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <StatusPill status={o.status}/>
+                  {updating===o.id ? <Spinner sm/> :
+                    <select className="status-select" value={o.status} onChange={e=>changeStatus(o.id,e.target.value)}>
+                      {STATUS_LIST.concat(['Cancelled']).map(s=><option key={s} value={s}>{s}</option>)}
+                    </select>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>)}
+        </div>
+      }
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   ADMIN: INVENTORY
+   ════════════════════════════════════════════════ */
+const AdminInventoryPage = () => {
+  const [items,   setItems]   = useState(DB.get('inventory'));
+  const [filter,  setFilter]  = useState('all');
+  const [editing, setEditing] = useState(null); // {id, stock}
+  const THRESHOLD = 20;
+  const CATS = ['all','base','sauce','cheese','veggie','meat'];
+
+  const reload = () => setItems(DB.get('inventory'));
+
+  const saveStock = (id) => {
+    const stock = Number(editing.stock);
+    if(isNaN(stock)||stock<0) return;
+    const all = DB.get('inventory').map(i=>i.id===id?{...i,stock}:i);
+    DB.set('inventory',all);
+    reload();
+    setEditing(null);
+    toast.success('Stock updated!');
+  };
+
+  const filtered = filter==='all' ? items : items.filter(i=>i.cat===filter);
+  const lowCount = items.filter(i=>i.stock<THRESHOLD).length;
+
+  return <div className="page">
+    <div className="container">
+      <div className="page-header">
+        <div>
+          <div className="section-title">📦 Inventory</div>
+          <div className="section-sub">
+            {lowCount>0 && <span style={{color:'var(--red)',fontWeight:800}}>⚠️ {lowCount} low-stock items! </span>}
+            Manage ingredient stock levels.
+          </div>
+        </div>
+        <button className="btn btn-secondary" onClick={()=>{
+          toast.info(`Low stock alert sent to admin email (demo). ${lowCount} items below threshold.`);
+        }}>📧 Send Alert Email</button>
+      </div>
+
+      <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:20}}>
+        {CATS.map(c=><button key={c} className={`btn btn-sm ${filter===c?'btn-primary':'btn-ghost'}`}
+          onClick={()=>setFilter(c)} style={{textTransform:'capitalize'}}>{c}</button>)}
+      </div>
+
+      <div className="admin-table-card">
+        <div style={{overflowX:'auto'}}>
+          <table>
+            <thead><tr>
+              {['Item','Category','Stock','Unit','Status','Action'].map(h=><th key={h}>{h}</th>)}
+            </tr></thead>
+            <tbody>
+              {filtered.map(item=>{
+                const low = item.stock<THRESHOLD;
+                const isEd = editing?.id===item.id;
+                return <tr key={item.id} className={low?'inv-low':''}>
+                  <td style={{fontWeight:700}}>{item.name}</td>
+                  <td><span style={{textTransform:'capitalize',color:'var(--gray)',fontWeight:600,fontSize:'.82rem'}}>{item.cat}</span></td>
+                  <td>
+                    {isEd
+                      ? <input className="inv-stock-input" type="number" min="0"
+                          value={editing.stock} onChange={e=>setEditing({...editing,stock:e.target.value})}/>
+                      : <span style={{fontWeight:800,color:low?'var(--red)':'var(--dark)'}}>{item.stock}</span>
+                    }
+                  </td>
+                  <td style={{color:'var(--gray)',fontWeight:600,fontSize:'.82rem'}}>units</td>
+                  <td>{low
+                    ? <span className="badge badge-red">⚠️ Low</span>
+                    : <span className="badge badge-green">✅ OK</span>}
+                  </td>
+                  <td>
+                    {isEd
+                      ? <div style={{display:'flex',gap:6}}>
+                          <button className="btn btn-primary btn-sm" onClick={()=>saveStock(item.id)}>Save</button>
+                          <button className="btn btn-ghost btn-sm" onClick={()=>setEditing(null)}>Cancel</button>
+                        </div>
+                      : <button className="btn btn-ghost btn-sm" onClick={()=>setEditing({id:item.id,stock:item.stock})}>
+                          ✏️ Edit
+                        </button>
+                    }
+                  </td>
+                </tr>;
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   ADMIN: PIZZAS
+   ════════════════════════════════════════════════ */
+const AdminPizzasPage = () => {
+  const [pizzas,   setPizzas]   = useState(DB.get('pizzas'));
+  const [showForm, setShowForm] = useState(false);
+  const [editId,   setEditId]   = useState(null);
+  const emptyF = {name:'',desc:'',price:'',cat:'veg',img:'',ingredients:''};
+  const [form,  setForm]  = useState(emptyF);
+  const [busy,  setBusy]  = useState(false);
+
+  const reload = () => setPizzas(DB.get('pizzas'));
+
+  const openAdd  = () => { setForm(emptyF); setEditId(null); setShowForm(true); };
+  const openEdit = p  => { setForm({...p, ingredients:p.ingredients.join(', '), price:String(p.price)}); setEditId(p.id); setShowForm(true); };
+
+  const save = e => {
+    e.preventDefault(); setBusy(true);
+    setTimeout(()=>{
+      const all = DB.get('pizzas');
+      const payload = {...form, price:Number(form.price), ingredients:form.ingredients.split(',').map(s=>s.trim()).filter(Boolean), ratings:editId?all.find(p=>p.id===editId)?.ratings||4.5:4.5};
+      if(editId) {
+        DB.set('pizzas',all.map(p=>p.id===editId?{...p,...payload}:p));
+        toast.success('Pizza updated!');
+      } else {
+        DB.set('pizzas',[...all,{...payload,id:uid()}]);
+        toast.success('Pizza added!');
+      }
+      reload(); setShowForm(false); setBusy(false);
+    }, 500);
+  };
+
+  const deletePizza = id => {
+    if(!window.confirm('Delete this pizza?')) return;
+    DB.set('pizzas',DB.get('pizzas').filter(p=>p.id!==id));
+    reload(); toast.success('Deleted!');
+  };
+
+  return <div className="page">
+    <div className="container">
+      <div className="page-header">
+        <div>
+          <div className="section-title">🍕 Manage Pizzas</div>
+          <div className="section-sub">{pizzas.length} pizzas on the menu.</div>
+        </div>
+        <button className="btn btn-primary" onClick={openAdd}>+ Add New Pizza</button>
+      </div>
+
+      {showForm && <div className="modal-overlay">
+        <div className="modal">
+          <div className="modal-title">{editId?'Edit Pizza':'Add New Pizza'}</div>
+          <form onSubmit={save}>
+            {[
+              {k:'name',l:'Name',t:'text',ph:'Margherita Classic'},
+              {k:'desc',l:'Description',t:'text',ph:'Fresh tomato sauce…'},
+              {k:'price',l:'Price (₹)',t:'number',ph:'299'},
+              {k:'img',l:'Image URL',t:'url',ph:'https://…'},
+              {k:'ingredients',l:'Ingredients (comma-separated)',t:'text',ph:'Tomato, Mozzarella, Basil'},
+            ].map(f=><div className="form-group" key={f.k}>
+              <label className="form-label">{f.l}</label>
+              <input className="form-control" type={f.t} placeholder={f.ph}
+                value={form[f.k]} onChange={e=>setForm({...form,[f.k]:e.target.value})}
+                required={f.k!=='img'}/>
+            </div>)}
+            <div className="form-group">
+              <label className="form-label">Category</label>
+              <select className="form-control" value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>
+                <option value="veg">Veg</option>
+                <option value="non-veg">Non-Veg</option>
+              </select>
+            </div>
+            <div className="modal-footer">
+              <button type="submit" className="btn btn-primary" style={{flex:1}} disabled={busy}>
+                {busy?<Spinner sm/>:editId?'Update Pizza':'Add Pizza'}
+              </button>
+              <button type="button" className="btn btn-ghost" style={{flex:1}} onClick={()=>setShowForm(false)}>Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>}
+
+      <div className="pizza-grid">
+        {pizzas.map(p=><div key={p.id} className="pizza-card">
+          <div className="pizza-img-wrap">
+            <img src={p.img} alt={p.name} onError={e=>e.target.src='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80'}/>
+            <span className={`pizza-cat-badge badge ${p.cat==='veg'?'badge-green':'badge-red'}`}>
+              {p.cat==='veg'?'🟢 Veg':'🔴 Non-Veg'}
+            </span>
+          </div>
+          <div className="pizza-body">
+            <div className="pizza-name">{p.name}</div>
+            <div className="pizza-desc">{p.desc}</div>
+            <div className="pizza-footer">
+              <span className="pizza-price">₹{p.price}</span>
+              <div style={{display:'flex',gap:6}}>
+                <button className="btn btn-ghost btn-sm" onClick={()=>openEdit(p)}>✏️</button>
+                <button className="btn btn-sm" style={{background:'var(--red-l)',color:'var(--red-d)',border:'none'}}
+                  onClick={()=>deletePizza(p.id)}>🗑</button>
+              </div>
+            </div>
+          </div>
+        </div>)}
+      </div>
+    </div>
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   AUTO STATUS ADVANCEMENT (Demo feature)
+   Simulates kitchen processing every 45s
+   ════════════════════════════════════════════════ */
+const useAutoAdvance = () => {
+  useEffect(()=>{
+    const t = setInterval(()=>{
+      const orders = DB.get('orders');
+      let changed = false;
+      const updated = orders.map(o=>{
+        const idx = STATUS_LIST.indexOf(o.status);
+        if(idx>=0 && idx<STATUS_LIST.length-1){
+          // 30% chance to advance each tick (demo)
+          if(Math.random()<0.3){
+            changed = true;
+            const ns = STATUS_LIST[idx+1];
+            return {...o, status:ns, statusHistory:[...o.statusHistory,{status:ns,at:Date.now()}]};
+          }
+        }
+        return o;
+      });
+      if(changed) DB.set('orders', updated);
+    }, 12000);
+    return ()=>clearInterval(t);
+  },[]);
+};
+
+/* ════════════════════════════════════════════════
+   ROOT APP
+   ════════════════════════════════════════════════ */
+const App = () => {
+  const {user, isAdmin} = useAuth();
+  const [page,    setPage]    = useState(user ? (user.role==='admin'?'admin':'dashboard') : 'login');
+  const [pageArg, setPageArg] = useState(null);
+  useAutoAdvance();
+
+  const nav = (p, arg=null) => { setPage(p); setPageArg(arg); window.scrollTo(0,0); };
+
+  // Redirect if not logged in
+  useEffect(()=>{
+    if(!user && !['login','register'].includes(page)) nav('login');
+    if(user && ['login','register'].includes(page)) nav(user.role==='admin'?'admin':'dashboard');
+  },[user]);
+
+  const pages = {
+    login:           ()=><LoginPage nav={nav}/>,
+    register:        ()=><RegisterPage nav={nav}/>,
+    dashboard:       ()=><DashboardPage nav={nav}/>,
+    builder:         ()=><PizzaBuilderPage nav={nav}/>,
+    cart:            ()=><CartPage nav={nav}/>,
+    orders:          ()=><OrdersPage nav={nav}/>,
+    'order-detail':  ()=><OrderDetailPage nav={nav} orderId={pageArg}/>,
+    admin:           ()=><AdminDashboardPage nav={nav}/>,
+    'admin-orders':  ()=><AdminOrdersPage/>,
+    'admin-inventory':()=><AdminInventoryPage/>,
+    'admin-pizzas':  ()=><AdminPizzasPage/>,
+  };
+
+  const render = pages[page];
+
+  return <div className="app">
+    <Navbar page={page} nav={nav}/>
+    {render ? render() : <div className="loading-box"><Spinner/></div>}
+  </div>;
+};
+
+/* ════════════════════════════════════════════════
+   PROVIDERS WRAPPER
+   ════════════════════════════════════════════════ */
+const Root = () => (
+  <AuthProvider>
+    <CartProviderWrapper/>
+  </AuthProvider>
+);
+
+const CartProviderWrapper = () => (
+  <CartProvider>
+    <App/>
+  </CartProvider>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Root/>);
+</script>
+</body>
+</html>

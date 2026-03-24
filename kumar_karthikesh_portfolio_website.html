@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kumar Karthikesh | FINAL BOSS Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--text:#fff;--accent:#38bdf8}
+.light{--bg:#f8fafc;--card:#ffffff;--text:#0f172a}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:var(--bg);color:var(--text);overflow-x:hidden}
+canvas{position:fixed;top:0;left:0;z-index:-1}
+nav{position:fixed;width:100%;top:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);padding:15px;text-align:center;z-index:1000}
+nav a{color:#fff;margin:0 15px;text-decoration:none}
+.hero{text-align:center;padding-top:120px}
+.hero img{width:160px;height:160px;border-radius:50%;border:4px solid var(--accent)}
+.hero h1{font-size:3rem}
+.hero h2{color:var(--accent)}
+.btn{padding:12px 25px;background:var(--accent);border:none;border-radius:30px;margin-top:20px;cursor:pointer}
+.section{padding:80px 20px;text-align:center}
+.card{background:var(--card);margin:20px auto;padding:20px;border-radius:15px;max-width:400px}
+#chatbot{position:fixed;bottom:20px;right:20px;background:var(--card);padding:15px;border-radius:10px;width:250px}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<nav>
+<a href="#">Home</a>
+<a href="#projects">Projects</a>
+<a href="#contact">Contact</a>
+</nav>
+
+<div class="hero">
+<img src="your-photo.jpg">
+<h1>Kumar Karthikesh</h1>
+<h2 id="typing"></h2>
+<button class="btn">Download Resume</button>
+</div>
+
+<div class="section" id="projects">
+<h2>🚀 Projects</h2>
+<div id="projectsGrid"></div>
+</div>
+
+<div class="section" id="contact">
+<h2>📞 Contact</h2>
+<div class="card">
+<p>Email: kumarkarthikesh6@gmail.com</p>
+<p>Phone: +91 8885287919</p>
+</div>
+</div>
+
+<div id="chatbot">
+<b>AI Chat 🤖</b>
+<input type="text" placeholder="Ask me..." onkeypress="chat(event)">
+<p id="res"></p>
+</div>
+
+<script>
+// typing
+const text="FINAL BOSS FULL STACK DEVELOPER";let i=0;
+(function(){if(i<text.length){typing.innerHTML+=text[i++];setTimeout(arguments.callee,60)}})();
+
+// chatbot
+function chat(e){if(e.key==='Enter'){let v=e.target.value.toLowerCase();res.innerText=v.includes('skills')?'Full Stack Dev':'Contact me!'}}
+
+// github fetch
+fetch('https://api.github.com/users/KUMARKARTHIKESH6/repos')
+.then(r=>r.json()).then(d=>{
+d.slice(0,4).forEach(repo=>{
+let el=document.createElement('div');el.className='card';
+el.innerHTML=`<h3>${repo.name}</h3><a href="${repo.html_url}" target="_blank"><button class='btn'>View</button></a>`;
+projectsGrid.appendChild(el);
+})})
+
+// THREE JS BACKGROUND
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+const renderer=new THREE.WebGLRenderer({canvas:document.getElementById('bg')});
+renderer.setSize(window.innerWidth,window.innerHeight);
+const geometry=new THREE.TorusGeometry(10,3,16,100);
+const material=new THREE.MeshBasicMaterial({color:0x38bdf8,wireframe:true});
+const torus=new THREE.Mesh(geometry,material);
+scene.add(torus);
+camera.position.z=30;
+function animate(){requestAnimationFrame(animate);torus.rotation.x+=0.01;torus.rotation.y+=0.01;renderer.render(scene,camera);}animate();
+</script>
+
+</body>
+</html>
